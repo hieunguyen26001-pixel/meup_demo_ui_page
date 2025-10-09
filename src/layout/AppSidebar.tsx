@@ -77,11 +77,11 @@ const AppSidebar: React.FC = () => {
   // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
     (path: string) => {
-      const fullPath = `/meup/${path}`;
+      const fullPath = `/${path}`;
       // For exact match
       if (location.pathname === fullPath) return true;
       // For nested routes like campaign-video/:id
-      if (path === 'gmv-max-product' && location.pathname.startsWith('/meup/campaign-video/')) return true;
+      if (path === 'gmv-max-product' && location.pathname.startsWith('/campaign-video/')) return true;
       return false;
     },
     [location.pathname]
@@ -285,7 +285,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link to="/meup/">
+        <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
