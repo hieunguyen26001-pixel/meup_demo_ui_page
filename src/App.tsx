@@ -22,6 +22,13 @@ import AdsOverview from "./pages/Ads/AdsOverview";
 import GmvMaxProduct from "./pages/Ads/GmvMaxProduct";
 import GmvMaxLive from "./pages/Ads/GmvMaxLive";
 import CampaignVideoDetail from "./pages/Ads/CampaignVideoDetail";
+import VideoManagement from "./pages/Management/VideoManagement";
+import BookingManagement from "./pages/Management/BookingManagement";
+import StaffList from "./pages/Management/StaffList";
+import Orders from "./pages/Store/Orders";
+import ProductManagement from "./pages/Store/ProductManagement";
+import OrdersFulfillment from "./pages/Store/OrdersFulfillment";
+import AftersalesAnalytics from "./pages/Store/AftersalesAnalytics";
 
 export default function App() {
   return (
@@ -61,6 +68,17 @@ export default function App() {
             <Route path="gmv-max-product" element={<GmvMaxProduct />} />
             <Route path="gmv-max-live" element={<GmvMaxLive />} />
             <Route path="campaign-video/:campaignId" element={<CampaignVideoDetail />} />
+
+            {/* Management */}
+            <Route path="video-management" element={<VideoManagement />} />
+            <Route path="booking-management" element={<BookingManagement />} />
+            <Route path="staff-list" element={<StaffList />} />
+
+            {/* Store */}
+            <Route path="orders" element={<Orders />} />
+            <Route path="product-management" element={<ProductManagement />} />
+            <Route path="orders-fulfillment" element={<OrdersFulfillment />} />
+            <Route path="aftersales-analytics" element={<AftersalesAnalytics />} />
           </Route>
 
           {/* Auth Layout */}
