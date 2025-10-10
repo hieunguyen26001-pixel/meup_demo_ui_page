@@ -29,6 +29,7 @@ import Orders from "./pages/Store/Orders";
 import ProductManagement from "./pages/Store/ProductManagement";
 import OrdersFulfillment from "./pages/Store/OrdersFulfillment";
 import AftersalesAnalytics from "./pages/Store/AftersalesAnalytics";
+import TikTokApiPage from "./pages/Demo/TikTokApiPage";
 
 export default function App() {
   return (
@@ -78,12 +79,15 @@ export default function App() {
             <Route path="orders" element={<Orders />} />
             <Route path="product-management" element={<ProductManagement />} />
             <Route path="orders-fulfillment" element={<OrdersFulfillment />} />
-            <Route path="aftersales-analytics" element={<AftersalesAnalytics />} />
-          </Route>
+          <Route path="aftersales-analytics" element={<AftersalesAnalytics />} />
 
-          {/* Auth Layout */}
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+          {/* Demo */}
+          <Route path="tiktok-api-demo" element={<TikTokApiPage />} />
+        </Route>
+
+        {/* Auth Layout */}
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />

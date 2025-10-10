@@ -9,7 +9,6 @@ export default defineConfig({
     svgr({
       svgrOptions: {
         icon: true,
-        // This will transform your SVG to a React component
         exportType: "named",
         namedExport: "ReactComponent",
       },
@@ -19,15 +18,17 @@ export default defineConfig({
     port: 3000,
     host: true,
     open: true,
+    hmr: {
+      overlay: false
+    }
   },
   optimizeDeps: {
+    force: true,
     include: [
       'react',
       'react-dom',
       'apexcharts',
-      'react-apexcharts',
-      '@react-jvectormap/core',
-      '@react-jvectormap/world'
+      'react-apexcharts'
     ],
   },
   build: {

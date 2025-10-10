@@ -49,17 +49,24 @@ const navItems: NavItem[] = [
       { name: "Danh sách nhân sự", path: "staff-list", pro: false, icon: <UserIcon /> }
     ],
   },
-  {
-    icon: <ListIcon />,
-    name: "Cửa hàng",
-    subItems: [
-      { name: "Quản lí Sản phẩm", path: "product-management", pro: false, icon: <BoxCubeIcon /> },
-      { name: "Đơn hàng & Fulfillment", path: "orders-fulfillment", pro: false, icon: <TableIcon /> },
-      { name: "Logistics", path: "logistics-tracking", pro: false, icon: <BoxIcon /> },
-      { name: "Phân tích Shop", path: "shop-analytics", pro: false, icon: <PieChartIcon /> },
-      { name: "Phân tích Hủy/Trả/Hoàn tiền", path: "aftersales-analytics", pro: false, icon: <DollarLineIcon /> }
-    ],
-  },
+          {
+            icon: <ListIcon />,
+            name: "Cửa hàng",
+            subItems: [
+              { name: "Quản lí Sản phẩm", path: "product-management", pro: false, icon: <BoxCubeIcon /> },
+              { name: "Đơn hàng & Fulfillment", path: "orders-fulfillment", pro: false, icon: <TableIcon /> },
+              { name: "Logistics", path: "logistics-tracking", pro: false, icon: <BoxIcon /> },
+              { name: "Phân tích Shop", path: "shop-analytics", pro: false, icon: <PieChartIcon /> },
+              { name: "Phân tích Hủy/Trả/Hoàn tiền", path: "aftersales-analytics", pro: false, icon: <DollarLineIcon /> }
+            ],
+          },
+          {
+            icon: <ListIcon />,
+            name: "Demo",
+            subItems: [
+              { name: "TikTok API Demo", path: "tiktok-api-demo", pro: false, icon: <VideoIcon /> }
+            ],
+          },
 ];
 
 const othersItems: NavItem[] = [];
@@ -68,7 +75,7 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
-  const [openSubmenus, setOpenSubmenus] = useState<Set<string>>(new Set(["main-0", "main-1", "main-2"]));
+  const [openSubmenus, setOpenSubmenus] = useState<Set<string>>(new Set(["main-0", "main-1", "main-2", "main-3"]));
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
     {}
   );
