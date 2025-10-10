@@ -4,37 +4,37 @@ import { ApexOptions } from "apexcharts";
 
 const KOCVideoChart: React.FC = () => {
   const data = [
-    { date: "01/10", value: 1 },
-    { date: "02/10", value: 2 },
-    { date: "03/10", value: 3 },
-    { date: "04/10", value: 5 },
-    { date: "05/10", value: 4 },
-    { date: "06/10", value: 6 },
-    { date: "07/10", value: 5 },
-    { date: "08/10", value: 7 },
-    { date: "09/10", value: 8 },
-    { date: "10/10", value: 9 },
-    { date: "11/10", value: 7 },
-    { date: "12/10", value: 6 },
-    { date: "13/10", value: 5 },
-    { date: "14/10", value: 6 },
-    { date: "15/10", value: 7 },
-    { date: "16/10", value: 5 },
-    { date: "17/10", value: 4 },
-    { date: "18/10", value: 3 },
-    { date: "19/10", value: 2 },
-    { date: "20/10", value: 2 },
-    { date: "21/10", value: 1 },
-    { date: "22/10", value: 1 },
-    { date: "23/10", value: 1 },
-    { date: "24/10", value: 1 },
-    { date: "25/10", value: 2 },
-    { date: "26/10", value: 2 },
-    { date: "27/10", value: 2 },
-    { date: "28/10", value: 1 },
-    { date: "29/10", value: 1 },
-    { date: "30/10", value: 1 },
-    { date: "31/10", value: 1 }
+    { date: "01/10/2024", value: 1 },
+    { date: "02/10/2024", value: 2 },
+    { date: "03/10/2024", value: 3 },
+    { date: "04/10/2024", value: 5 },
+    { date: "05/10/2024", value: 4 },
+    { date: "06/10/2024", value: 6 },
+    { date: "07/10/2024", value: 5 },
+    { date: "08/10/2024", value: 7 },
+    { date: "09/10/2024", value: 8 },
+    { date: "10/10/2024", value: 9 },
+    { date: "11/10/2024", value: 7 },
+    { date: "12/10/2024", value: 6 },
+    { date: "13/10/2024", value: 5 },
+    { date: "14/10/2024", value: 6 },
+    { date: "15/10/2024", value: 7 },
+    { date: "16/10/2024", value: 5 },
+    { date: "17/10/2024", value: 4 },
+    { date: "18/10/2024", value: 3 },
+    { date: "19/10/2024", value: 2 },
+    { date: "20/10/2024", value: 2 },
+    { date: "21/10/2024", value: 1 },
+    { date: "22/10/2024", value: 1 },
+    { date: "23/10/2024", value: 1 },
+    { date: "24/10/2024", value: 1 },
+    { date: "25/10/2024", value: 2 },
+    { date: "26/10/2024", value: 2 },
+    { date: "27/10/2024", value: 2 },
+    { date: "28/10/2024", value: 1 },
+    { date: "29/10/2024", value: 1 },
+    { date: "30/10/2024", value: 1 },
+    { date: "31/10/2024", value: 1 }
   ];
 
   const chartOptions: ApexOptions = {
@@ -42,7 +42,7 @@ const KOCVideoChart: React.FC = () => {
     chart: {
       fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       type: "bar",
-      height: 220,
+      height: 280,
       toolbar: {
         show: false,
       },
@@ -73,7 +73,7 @@ const KOCVideoChart: React.FC = () => {
       },
       labels: {
         style: {
-          fontSize: "10px",
+          fontSize: "11px",
           colors: ["#6B7280"],
         },
       },
@@ -137,7 +137,7 @@ const KOCVideoChart: React.FC = () => {
         KOC LÀM VIDEO THEO NGÀY
       </h3>
 
-      <Chart options={chartOptions} series={chartSeries} type="bar" height={220} />
+      <Chart options={chartOptions} series={chartSeries} type="bar" height={280} />
     </div>
   );
 };

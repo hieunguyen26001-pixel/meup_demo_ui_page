@@ -30,56 +30,59 @@ const BookingDashboard: React.FC = () => {
     <>
       <PageMeta title="Quản lý Booking Code - meup" description="Dashboard tổng quan và quản lý các booking code KOC" />
       
-      <div className="mx-auto max-w-screen-2xl p-4">
+      <div className="mx-auto max-w-screen-2xl p-4 sm:p-6">
         {/* Date Range Filter */}
-        <div className="mb-6">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="mb-4 sm:mb-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="flex items-center justify-start">
               <DateRangePicker
                 value={dateRange}
                 onChange={handleDateRangeChange}
                 placeholder="Chọn khoảng thời gian"
-                className="w-80"
+                className="w-full sm:w-80"
               />
             </div>
           </div>
         </div>
 
-      {/* Top KPI Cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-        <KPICard
-          title="TÌM KIẾM KOC"
-          value={128}
-          icon={GridIcon}
-          color="blue"
-        />
-        <KPICard
-          title="TỔNG KOC PHẢN HỒI"
-          value={71}
-          icon={ChatIcon}
-          color="green"
-        />
-        <KPICard
-          title="TỔNG KOC ĐỒNG Ý"
-          value={34}
-          icon={CheckCircleIcon}
-          color="orange"
-        />
-        <KPICard
-          title="TỔNG KOC ĐÃ LÀM VIDEO"
-          value={28}
-          icon={VideoIcon}
-          color="purple"
-        />
-      </div>
-
-      {/* Progress Card - Full width */}
-      <div className="mb-6">
-        <KOCVideoProgressCard />
-      </div>
+               {/* Top Section - Side by side */}
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4 sm:mb-6">
+                 {/* Left side - Progress Card */}
+                 <div>
+                   <KOCVideoProgressCard />
+                 </div>
+                 
+                 {/* Right side - 4 KPI Cards in responsive grid */}
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                   <KPICard
+                     title="TÌM KIẾM KOC"
+                     value={128}
+                     icon={GridIcon}
+                     color="blue"
+                   />
+                   <KPICard
+                     title="TỔNG KOC PHẢN HỒI"
+                     value={71}
+                     icon={ChatIcon}
+                     color="green"
+                   />
+                   <KPICard
+                     title="TỔNG KOC ĐỒNG Ý"
+                     value={34}
+                     icon={CheckCircleIcon}
+                     color="orange"
+                   />
+                   <KPICard
+                     title="TỔNG KOC ĐÃ LÀM VIDEO"
+                     value={28}
+                     icon={VideoIcon}
+                     color="purple"
+                   />
+                 </div>
+               </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
         <VolumeChart />
         <KOCSearchChart />
         <KOCAgreeChart />

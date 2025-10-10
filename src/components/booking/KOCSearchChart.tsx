@@ -4,52 +4,52 @@ import { ApexOptions } from "apexcharts";
 
 const KOCSearchChart: React.FC = () => {
   const data = [
-    { date: "01/10", value: 5 },
-    { date: "02/10", value: 8 },
-    { date: "03/10", value: 12 },
-    { date: "04/10", value: 18 },
-    { date: "05/10", value: 15 },
-    { date: "06/10", value: 22 },
-    { date: "07/10", value: 19 },
-    { date: "08/10", value: 25 },
-    { date: "09/10", value: 28 },
-    { date: "10/10", value: 30 },
-    { date: "11/10", value: 27 },
-    { date: "12/10", value: 24 },
-    { date: "13/10", value: 21 },
-    { date: "14/10", value: 26 },
-    { date: "15/10", value: 29 },
-    { date: "16/10", value: 23 },
-    { date: "17/10", value: 20 },
-    { date: "18/10", value: 17 },
-    { date: "19/10", value: 14 },
-    { date: "20/10", value: 11 },
-    { date: "21/10", value: 8 },
-    { date: "22/10", value: 6 },
-    { date: "23/10", value: 4 },
-    { date: "24/10", value: 7 },
-    { date: "25/10", value: 9 },
-    { date: "26/10", value: 12 },
-    { date: "27/10", value: 10 },
-    { date: "28/10", value: 8 },
-    { date: "29/10", value: 6 },
-    { date: "30/10", value: 4 },
-    { date: "31/10", value: 2 }
+    { date: "01/10/2024", value: 5 },
+    { date: "02/10/2024", value: 8 },
+    { date: "03/10/2024", value: 12 },
+    { date: "04/10/2024", value: 18 },
+    { date: "05/10/2024", value: 15 },
+    { date: "06/10/2024", value: 22 },
+    { date: "07/10/2024", value: 19 },
+    { date: "08/10/2024", value: 25 },
+    { date: "09/10/2024", value: 28 },
+    { date: "10/10/2024", value: 30 },
+    { date: "11/10/2024", value: 27 },
+    { date: "12/10/2024", value: 24 },
+    { date: "13/10/2024", value: 21 },
+    { date: "14/10/2024", value: 26 },
+    { date: "15/10/2024", value: 29 },
+    { date: "16/10/2024", value: 23 },
+    { date: "17/10/2024", value: 20 },
+    { date: "18/10/2024", value: 17 },
+    { date: "19/10/2024", value: 14 },
+    { date: "20/10/2024", value: 11 },
+    { date: "21/10/2024", value: 8 },
+    { date: "22/10/2024", value: 6 },
+    { date: "23/10/2024", value: 4 },
+    { date: "24/10/2024", value: 7 },
+    { date: "25/10/2024", value: 9 },
+    { date: "26/10/2024", value: 12 },
+    { date: "27/10/2024", value: 10 },
+    { date: "28/10/2024", value: 8 },
+    { date: "29/10/2024", value: 6 },
+    { date: "30/10/2024", value: 4 },
+    { date: "31/10/2024", value: 2 }
   ];
 
   const chartOptions: ApexOptions = {
-    colors: ["#3B82F6"],
+    colors: ["#0EA5E9"],
     chart: {
       fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
-      type: "line",
-      height: 220,
+      type: "area",
+      height: 280,
       toolbar: {
         show: false,
       },
     },
     plotOptions: {
-      line: {
-        strokeWidth: 3,
+      area: {
+        fillTo: "end",
       },
     },
     dataLabels: {
@@ -69,7 +69,7 @@ const KOCSearchChart: React.FC = () => {
       },
       labels: {
         style: {
-          fontSize: "10px",
+          fontSize: "11px",
           colors: ["#6B7280"],
         },
       },
@@ -106,7 +106,7 @@ const KOCSearchChart: React.FC = () => {
         shade: "light",
         type: "vertical",
         shadeIntensity: 0.5,
-        gradientToColors: ["#60A5FA"],
+        gradientToColors: ["#38BDF8"],
         inverseColors: false,
         opacityFrom: 0.8,
         opacityTo: 0.1,
@@ -133,7 +133,7 @@ const KOCSearchChart: React.FC = () => {
         TÌM KIẾM KOC THEO NGÀY
       </h3>
 
-      <Chart options={chartOptions} series={chartSeries} type="line" height={220} />
+      <Chart options={chartOptions} series={chartSeries} type="area" height={280} />
     </div>
   );
 };

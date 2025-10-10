@@ -11,7 +11,7 @@ const VolumeChart: React.FC = () => {
   ];
 
   const chartOptions: ApexOptions = {
-    colors: ["#8B5CF6", "#EC4899", "#F59E0B", "#10B981"],
+    colors: ["#6366F1", "#EC4899", "#F59E0B", "#10B981"],
     chart: {
       fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       type: "pie",
@@ -76,36 +76,36 @@ const VolumeChart: React.FC = () => {
         TỈ TRỌNG KHỐI LƯỢNG CÔNG VIỆC THEO NHÂN SỰ
       </h3>
 
-      <div className="flex items-center">
-        {/* Chart */}
-        <div className="flex-1">
-          <Chart options={chartOptions} series={chartSeries} type="pie" height={220} />
-        </div>
-        
-        {/* Legend */}
-        <div className="ml-4 flex-1">
-          <div className="space-y-2">
-            {data.map((item, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div 
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: chartOptions.colors![index] }}
-                  ></div>
-                  <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                    {item.name}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-gray-800 dark:text-white">
-                    {item.value}%
-                  </div>
+            <div className="flex flex-col sm:flex-row items-center h-full -mt-5 gap-4 sm:gap-0">
+              {/* Chart */}
+              <div className="flex-1 w-full sm:w-auto">
+                <Chart options={chartOptions} series={chartSeries} type="pie" height={220} />
+              </div>
+
+              {/* Legend */}
+              <div className="sm:ml-4 flex-1 w-full sm:w-auto">
+                <div className="space-y-2">
+                  {data.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: chartOptions.colors![index] }}
+                        ></div>
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                          {item.name}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-gray-800 dark:text-white">
+                          {item.value}%
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
+            </div>
     </div>
   );
 };
