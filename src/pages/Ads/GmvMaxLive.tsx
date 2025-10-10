@@ -1,7 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
+import DateRangePicker from "../../components/ui/DateRangePicker";
 
 const GmvMaxLive: React.FC = () => {
+  // Date picker state
+  const [dateRange, setDateRange] = useState<Date[]>([]);
+
+  const handleDateRangeChange = (dates: Date[]) => {
+    setDateRange(dates);
+    // Here you can add logic to filter livestream data based on selected date range
+    console.log('Selected date range:', dates);
+  };
   return (
     <>
       <PageMeta title="GMV Max Live - meup" />
@@ -14,6 +23,20 @@ const GmvMaxLive: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Theo dõi và quản lý livestream GMV Max
           </p>
+        </div>
+
+        {/* Date Range Filter */}
+        <div className="mb-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="flex items-center justify-start">
+              <DateRangePicker
+                value={dateRange}
+                onChange={handleDateRangeChange}
+                placeholder="Chọn khoảng thời gian"
+                className="w-80"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Content placeholder */}

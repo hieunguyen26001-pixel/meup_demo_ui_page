@@ -2,6 +2,7 @@ import React, { useState, useMemo, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import Chart from "react-apexcharts";
+import DateRangePicker from "../../components/ui/DateRangePicker";
 import {
   getVideoData,
   calculateVideoMetrics,
@@ -120,6 +121,15 @@ const CampaignVideoDetail: React.FC = () => {
     null
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Date picker state
+  const [dateRange, setDateRange] = useState<Date[]>([]);
+
+  const handleDateRangeChange = (dates: Date[]) => {
+    setDateRange(dates);
+    // Here you can add logic to filter video data based on selected date range
+    console.log('Selected date range:', dates);
+  };
 
   // Sample campaign data
   const campaignData: CampaignData = {
@@ -273,6 +283,20 @@ const CampaignVideoDetail: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400">
             Phân tích hiệu suất các video quảng cáo trong chiến dịch
           </p>
+        </div>
+
+        {/* Date Range Filter */}
+        <div className="mb-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="flex items-center justify-start">
+              <DateRangePicker
+                value={dateRange}
+                onChange={handleDateRangeChange}
+                placeholder="Chọn khoảng thời gian"
+                className="w-80"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Campaign Information */}
