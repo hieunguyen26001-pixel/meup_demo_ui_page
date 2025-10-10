@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -39,7 +39,7 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route path="/" element={<AppLayout />}>
-            <Route index element={<Home />} />
+            <Route index element={<Navigate to="/ads-overview" replace />} />
 
             {/* Others Page */}
             <Route path="profile" element={<UserProfiles />} />

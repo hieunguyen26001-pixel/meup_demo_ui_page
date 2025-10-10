@@ -16,7 +16,7 @@ const AdsOverview: React.FC = () => {
   const revenueChartOptions: ApexOptions = {
     colors: ["#F59E0B"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       type: "bar",
       height: 220,
       toolbar: {
@@ -63,7 +63,7 @@ const AdsOverview: React.FC = () => {
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       fontSize: "12px",
     },
     yaxis: {
@@ -118,7 +118,7 @@ const AdsOverview: React.FC = () => {
   const costChartOptions: ApexOptions = {
     colors: ["#3B82F6"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       type: "bar",
       height: 220,
       toolbar: {
@@ -165,7 +165,7 @@ const AdsOverview: React.FC = () => {
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       fontSize: "12px",
     },
     yaxis: {
@@ -220,7 +220,7 @@ const AdsOverview: React.FC = () => {
   const roiChartOptions: ApexOptions = {
     colors: ["#3B82F6"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       height: 220,
       type: "area",
       toolbar: {
@@ -307,7 +307,7 @@ const AdsOverview: React.FC = () => {
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       fontSize: "12px",
     },
   };
@@ -327,7 +327,7 @@ const AdsOverview: React.FC = () => {
   const cpaChartOptions: ApexOptions = {
     colors: ["#3B82F6"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       type: "bar",
       height: 220,
       toolbar: {
@@ -374,7 +374,7 @@ const AdsOverview: React.FC = () => {
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       fontSize: "12px",
     },
     yaxis: {

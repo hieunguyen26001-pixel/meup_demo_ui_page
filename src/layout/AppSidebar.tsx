@@ -19,6 +19,7 @@ import {
   UserIcon,
   FolderIcon,
   BoxIcon,
+  ShootingStarIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -32,7 +33,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    icon: <ListIcon />,
+    icon: <ShootingStarIcon />,
     name: "Quảng cáo",
     subItems: [
       { name: "Tổng quan", path: "ads-overview", pro: false, icon: <GridIcon /> },
@@ -41,7 +42,7 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    icon: <ListIcon />,
+    icon: <UserCircleIcon />,
     name: "Quản lí",
     subItems: [
       { name: "Quản lí video", path: "video-management", pro: false, icon: <VideoIcon /> },
@@ -49,17 +50,17 @@ const navItems: NavItem[] = [
       { name: "Danh sách nhân sự", path: "staff-list", pro: false, icon: <UserIcon /> }
     ],
   },
-          {
-            icon: <ListIcon />,
-            name: "Cửa hàng",
-            subItems: [
-              { name: "Quản lí Sản phẩm", path: "product-management", pro: false, icon: <BoxCubeIcon /> },
-              { name: "Đơn hàng & Fulfillment", path: "orders-fulfillment", pro: false, icon: <TableIcon /> },
-              { name: "Logistics", path: "logistics-tracking", pro: false, icon: <BoxIcon /> },
-              { name: "Phân tích Shop", path: "shop-analytics", pro: false, icon: <PieChartIcon /> },
-              { name: "Phân tích Hủy/Trả/Hoàn tiền", path: "aftersales-analytics", pro: false, icon: <DollarLineIcon /> }
-            ],
-          },
+  {
+    icon: <BoxCubeIcon />,
+    name: "Cửa hàng",
+    subItems: [
+      { name: "Quản lí Sản phẩm", path: "product-management", pro: false, icon: <BoxCubeIcon /> },
+      { name: "Đơn hàng & Fulfillment", path: "orders-fulfillment", pro: false, icon: <TableIcon /> },
+      { name: "Logistics", path: "logistics-tracking", pro: false, icon: <BoxIcon /> },
+      { name: "Phân tích Shop", path: "shop-analytics", pro: false, icon: <PieChartIcon /> },
+      { name: "Phân tích Hủy/Trả/Hoàn tiền", path: "aftersales-analytics", pro: false, icon: <DollarLineIcon /> }
+    ],
+  },
 ];
 
 const othersItems: NavItem[] = [];
@@ -139,7 +140,7 @@ const AppSidebar: React.FC = () => {
   };
 
   const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
-    <ul className="flex flex-col gap-1">
+    <ul className="flex flex-col gap-2">
       {items.map((nav, index) => (
         <li key={nav.name}>
           {nav.subItems ? (
@@ -213,7 +214,7 @@ const AppSidebar: React.FC = () => {
                     : "0px",
               }}
             >
-              <ul className="mt-1 space-y-1 ml-8">
+              <ul className="mt-2 space-y-1 ml-6">
                 {nav.subItems.map((subItem) => (
                   <li key={subItem.name}>
                     <Link
@@ -225,7 +226,7 @@ const AppSidebar: React.FC = () => {
                       }`}
                     >
                       {subItem.icon && (
-                        <span className="w-6 h-6 mr-2 flex items-center justify-center">
+                        <span className="w-5 h-5 flex items-center justify-center">
                           {subItem.icon}
                         </span>
                       )}
@@ -267,12 +268,12 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-6 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 shadow-lg lg:shadow-none
         ${
           isExpanded || isMobileOpen
-            ? "w-[290px]"
+            ? "w-[300px]"
             : isHovered
-            ? "w-[290px]"
+            ? "w-[300px]"
             : "w-[90px]"
         }
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
@@ -281,7 +282,7 @@ const AppSidebar: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`flex ${
+        className={`flex py-4 ${
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
@@ -315,10 +316,10 @@ const AppSidebar: React.FC = () => {
       </div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar flex-1">
         <nav className="py-6">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <div>
               <h2
-                className={`mb-6 text-xs uppercase flex leading-[20px] text-gray-400 font-semibold ${
+                className={`mb-6 text-xs uppercase flex leading-[20px] text-gray-400 font-semibold tracking-wider ${
                   !isExpanded && !isHovered
                     ? "lg:justify-center"
                     : "justify-start"

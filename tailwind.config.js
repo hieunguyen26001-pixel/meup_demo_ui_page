@@ -1,4 +1,4 @@
-const defaultTheme = require("tailwindcss/defaultTheme");
+import defaultTheme from "tailwindcss/defaultTheme";
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -6,6 +6,8 @@ export default {
   theme: {
     fontFamily: {
       outfit: ["Outfit", "sans-serif"],
+      inter: ["Inter", "sans-serif"],
+      vietnamese: ["Be Vietnam Pro", "Inter", "Outfit", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", "sans-serif"],
     },
     screens: {
       "2xsm": "375px",

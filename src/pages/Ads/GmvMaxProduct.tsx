@@ -54,7 +54,7 @@ const GmvMaxProduct: React.FC = () => {
   const revenueChartOptions: ApexOptions = {
     colors: ["#F59E0B"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       type: "bar",
       height: 220,
       toolbar: {
@@ -101,7 +101,7 @@ const GmvMaxProduct: React.FC = () => {
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       fontSize: "12px",
     },
     yaxis: {
@@ -156,7 +156,7 @@ const GmvMaxProduct: React.FC = () => {
   const costChartOptions: ApexOptions = {
     colors: ["#3B82F6"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       type: "bar",
       height: 220,
       toolbar: {
@@ -203,7 +203,7 @@ const GmvMaxProduct: React.FC = () => {
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       fontSize: "12px",
     },
     yaxis: {
@@ -258,7 +258,7 @@ const GmvMaxProduct: React.FC = () => {
   const roiChartOptions: ApexOptions = {
     colors: ["#3B82F6"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       height: 220,
       type: "area",
       toolbar: {
@@ -345,7 +345,7 @@ const GmvMaxProduct: React.FC = () => {
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       fontSize: "12px",
     },
   };
@@ -365,7 +365,7 @@ const GmvMaxProduct: React.FC = () => {
   const cpaChartOptions: ApexOptions = {
     colors: ["#3B82F6"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       type: "bar",
       height: 220,
       toolbar: {
@@ -412,7 +412,7 @@ const GmvMaxProduct: React.FC = () => {
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Be Vietnam Pro, Inter, Outfit, sans-serif",
       fontSize: "12px",
     },
     yaxis: {
@@ -1039,7 +1039,7 @@ const GmvMaxProduct: React.FC = () => {
                       type: "bar",
                       height: 220,
                       toolbar: { show: false },
-                      fontFamily: 'Inter, sans-serif',
+                      fontFamily: 'Be Vietnam Pro, Inter, sans-serif',
                       background: 'transparent'
                     },
                     colors: ["#A8E6CF", "#FFB3BA"],
@@ -1251,7 +1251,7 @@ const GmvMaxProduct: React.FC = () => {
                   options={{
                     colors: ["#A8E6CF", "#B8E6B8", "#C7E9C0", "#D4F1D4", "#E1F5E1", "#F0F8F0", "#F5F5F5"],
                     chart: {
-                      fontFamily: "Inter, sans-serif",
+                      fontFamily: "Be Vietnam Pro, Inter, sans-serif",
                       type: "pie",
                       height: 220,
                       toolbar: { show: false },
@@ -1353,7 +1353,7 @@ const GmvMaxProduct: React.FC = () => {
                       type: "bar",
                       height: 220,
                       toolbar: { show: false },
-                      fontFamily: 'Inter, sans-serif',
+                      fontFamily: 'Be Vietnam Pro, Inter, sans-serif',
                       background: 'transparent'
                     },
                     colors: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"],
@@ -1845,7 +1845,7 @@ const GmvMaxProduct: React.FC = () => {
                   options={{
                     colors: ["#F59E0B"],
                     chart: {
-                      fontFamily: "Inter, sans-serif",
+                      fontFamily: "Be Vietnam Pro, Inter, sans-serif",
                       type: "bar",
                       height: 220,
                       toolbar: { show: false },
@@ -1919,7 +1919,7 @@ const GmvMaxProduct: React.FC = () => {
                   options={{
                     colors: ["#EF4444"],
                     chart: {
-                      fontFamily: "Inter, sans-serif",
+                      fontFamily: "Be Vietnam Pro, Inter, sans-serif",
                       type: "bar",
                       height: 220,
                       toolbar: { show: false },
@@ -1993,7 +1993,7 @@ const GmvMaxProduct: React.FC = () => {
                   options={{
                     colors: ["#10B981"],
                     chart: {
-                      fontFamily: "Inter, sans-serif",
+                      fontFamily: "Be Vietnam Pro, Inter, sans-serif",
                       type: "area",
                       height: 220,
                       toolbar: { show: false },
@@ -2066,7 +2066,7 @@ const GmvMaxProduct: React.FC = () => {
                   options={{
                     colors: ["#8B5CF6"],
                     chart: {
-                      fontFamily: "Inter, sans-serif",
+                      fontFamily: "Be Vietnam Pro, Inter, sans-serif",
                       type: "bar",
                       height: 220,
                       toolbar: { show: false },

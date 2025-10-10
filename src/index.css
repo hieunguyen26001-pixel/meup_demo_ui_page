@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Inter:wght@100..900&family=Be+Vietnam+Pro:wght@100..900&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -6,16 +6,16 @@
 
 @layer base {
   body {
-    @apply relative text-base font-normal z-1 bg-gray-50 font-outfit;
+    @apply relative text-base font-normal z-1 bg-gray-50 font-vietnamese;
   }
 }
 
 @layer components {
   .menu-item {
-    @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm;
+    @apply relative flex items-center w-full gap-3 px-4 py-3 font-medium rounded-xl text-theme-sm transition-all duration-200;
   }
   .menu-item-active {
-    @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+    @apply bg-brand-50 text-brand-500 shadow-sm dark:bg-brand-500/[0.12] dark:text-brand-400;
   }
   .menu-item-inactive {
     @apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
@@ -27,7 +27,7 @@
     @apply text-brand-500 dark:text-brand-400;
   }
   .menu-item-icon-size svg {
-    @apply size-6 !important;
+    @apply size-5 !important;
   }
   .menu-item-icon-inactive {
     @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
@@ -44,10 +44,10 @@
   }
 
   .menu-dropdown-item {
-    @apply relative flex items-center gap-2 rounded-lg px-3 py-2 text-theme-sm font-medium;
+    @apply relative flex items-center gap-3 rounded-lg px-4 py-2.5 text-theme-sm font-medium transition-all duration-200;
   }
   .menu-dropdown-item-active {
-    @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+    @apply bg-brand-50 text-brand-500 shadow-sm dark:bg-brand-500/[0.12] dark:text-brand-400;
   }
   .menu-dropdown-item-inactive {
     @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
