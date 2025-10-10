@@ -30,10 +30,10 @@ const BookingDashboard: React.FC = () => {
     <>
       <PageMeta title="Quản lý Booking Code - meup" description="Dashboard tổng quan và quản lý các booking code KOC" />
       
-      <div className="mx-auto max-w-screen-2xl p-4 sm:p-6">
+      <div className="mx-auto max-w-screen-2xl p-4 sm:p-6 lg:p-4 xl:p-6">
         {/* Date Range Filter */}
-        <div className="mb-4 sm:mb-6">
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="mb-4 sm:mb-6 lg:mb-4 xl:mb-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 lg:p-4 xl:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="flex items-center justify-start">
               <DateRangePicker
                 value={dateRange}
@@ -46,14 +46,14 @@ const BookingDashboard: React.FC = () => {
         </div>
 
                {/* Top Section - Side by side */}
-               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4 sm:mb-6">
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4 sm:mb-6 lg:mb-4 xl:mb-6">
                  {/* Left side - Progress Card */}
                  <div>
                    <KOCVideoProgressCard />
                  </div>
                  
                  {/* Right side - 4 KPI Cards in responsive grid */}
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-3 xl:gap-4">
                    <KPICard
                      title="TÌM KIẾM KOC"
                      value={128}
@@ -82,11 +82,17 @@ const BookingDashboard: React.FC = () => {
                </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-4 xl:gap-6 lg:grid-cols-2">
         <VolumeChart />
         <KOCSearchChart />
         <KOCAgreeChart />
         <KOCVideoChart />
+      </div>
+
+      {/* Tables Section */}
+      <div className="mt-6 space-y-6">
+        <BookingReportTable />
+        <KOCVideoLinksTable />
       </div>
       </div>
     </>

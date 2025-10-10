@@ -5,7 +5,7 @@ const BookingReportTable: React.FC = () => {
   const data = [
     {
       id: 1,
-      responsiblePerson: "User Name",
+      responsiblePerson: "HieuNM",
       reportDate: "2025-10-08",
       searchCount: 50,
       responseCount: 30,
@@ -15,7 +15,7 @@ const BookingReportTable: React.FC = () => {
     },
     {
       id: 2,
-      responsiblePerson: "User Name",
+      responsiblePerson: "MinhTT",
       reportDate: "2025-10-23",
       searchCount: 3,
       responseCount: 3,
@@ -25,42 +25,42 @@ const BookingReportTable: React.FC = () => {
     },
     {
       id: 3,
-      responsiblePerson: "User Name",
+      responsiblePerson: "LinhLV",
+      reportDate: "2025-10-04",
+      searchCount: 30,
+      responseCount: 21,
+      agreedCount: 12,
+      videoCount: 11,
+      shopName: "LAFIT - Số 1 Gen Nịt Bụng"
+    },
+    {
+      id: 4,
+      responsiblePerson: "DungPT",
+      reportDate: "2025-10-03",
+      searchCount: 22,
+      responseCount: 11,
+      agreedCount: 6,
+      videoCount: 6,
+      shopName: "LAFIT - Số 1 Gen Nịt Bụng"
+    },
+    {
+      id: 5,
+      responsiblePerson: "HieuNM",
+      reportDate: "2025-10-01",
+      searchCount: 22,
+      responseCount: 5,
+      agreedCount: 2,
+      videoCount: 2,
+      shopName: "LAFIT - Số 1 Gen Nịt Bụng"
+    },
+    {
+      id: 6,
+      responsiblePerson: "MinhTT",
       reportDate: "2025-10-20",
       searchCount: 1,
       responseCount: 1,
       agreedCount: 1,
       videoCount: 1,
-      shopName: "LAFIT - Số 1 Gen Nịt Bụng"
-    },
-    {
-      id: 4,
-      responsiblePerson: "User Name",
-      reportDate: "2025-10-08",
-      searchCount: 30,
-      responseCount: 10,
-      agreedCount: 5,
-      videoCount: 2,
-      shopName: "LAFIT - Số 1 Gen Nịt Bụng"
-    },
-    {
-      id: 5,
-      responsiblePerson: "User Name",
-      reportDate: "2025-10-04",
-      searchCount: 21,
-      responseCount: 12,
-      agreedCount: 11,
-      videoCount: 8,
-      shopName: "LAFIT - Số 1 Gen Nịt Bụng"
-    },
-    {
-      id: 6,
-      responsiblePerson: "User Name",
-      reportDate: "2025-10-03",
-      searchCount: 11,
-      responseCount: 6,
-      agreedCount: 6,
-      videoCount: 4,
       shopName: "LAFIT - Số 1 Gen Nịt Bụng"
     }
   ];
@@ -80,32 +80,29 @@ const BookingReportTable: React.FC = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[800px]">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 STT
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Người phụ trách
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Ngày báo cáo
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 SL KOC Tìm kiếm
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 SL KOC Phản hồi
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 SL KOC Đồng ý
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 SL KOC Lên Video
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Tên Shop
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Actions
@@ -115,29 +112,26 @@ const BookingReportTable: React.FC = () => {
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {data.map((row) => (
               <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {row.id}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {row.responsiblePerson}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {row.reportDate}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {row.searchCount}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {row.responseCount}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {row.agreedCount}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {row.videoCount}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  {row.shopName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex items-center gap-2">

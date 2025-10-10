@@ -1,14 +1,15 @@
-import React from 'react';
-import { PlusIcon, PencilIcon, TrashBinIcon, ChevronLeftIcon, ChevronRightIcon } from '../../icons';
+import React, { useState } from 'react';
+import { PlusIcon, PencilIcon, TrashBinIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from '../../icons';
 
 const KOCVideoLinksTable: React.FC = () => {
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const data = [
     {
       id: 1,
       channelId: "hongthethaone444",
       videoLink: "https://www.tiktok.com/@hongthethaone/video/75250961123703718583434",
       adsCode: "22uuuuqqqqaoozzdddd",
-      responsiblePerson: "User Name",
+      responsiblePerson: "HieuNM",
       shopName: "LAFIT - Số 1 Gen Nịt Bụng",
       creationDate: "09/10/2025"
     },
@@ -17,7 +18,7 @@ const KOCVideoLinksTable: React.FC = () => {
       channelId: "hongthethaone",
       videoLink: "https://www.tiktok.com/@hongthethaone/video/7525096112370371858",
       adsCode: "22uuuuqqqqaoozzdddd",
-      responsiblePerson: "User Name",
+      responsiblePerson: "LinhLV",
       shopName: "LAFIT - Số 1 Gen Nịt Bụng",
       creationDate: "03/10/2025"
     }
@@ -57,9 +58,6 @@ const KOCVideoLinksTable: React.FC = () => {
                 Người phụ trách
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Tên Shop
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Ngày tạo
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -87,13 +85,28 @@ const KOCVideoLinksTable: React.FC = () => {
                   </a>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  {row.adsCode}
+                  <div className="flex items-center gap-2 relative">
+                    <span className="font-mono">**********</span>
+                    <button 
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors relative"
+                      onClick={() => {
+                        navigator.clipboard.writeText(row.adsCode);
+                        setCopiedIndex(row.id);
+                        setTimeout(() => setCopiedIndex(null), 2000);
+                      }}
+                      title="Sao chép mã code"
+                    >
+                      <CopyIcon className="w-4 h-4" />
+                      {copiedIndex === row.id && (
+                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap z-10">
+                          Đã sao chép!
+                        </div>
+                      )}
+                    </button>
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {row.responsiblePerson}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  {row.shopName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   {row.creationDate}

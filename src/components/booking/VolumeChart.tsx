@@ -4,10 +4,10 @@ import { ApexOptions } from "apexcharts";
 
 const VolumeChart: React.FC = () => {
   const data = [
-    { name: "Nguyễn Văn A", percentage: 35, value: 35 },
-    { name: "Trần Thị B", percentage: 28, value: 28 },
-    { name: "Lê Văn C", percentage: 20, value: 20 },
-    { name: "Phạm Thị D", percentage: 17, value: 17 }
+    { name: "HieuNM", percentage: 35, value: 35 },
+    { name: "MinhTT", percentage: 28, value: 28 },
+    { name: "LinhLV", percentage: 20, value: 20 },
+    { name: "DungPT", percentage: 17, value: 17 }
   ];
 
   const chartOptions: ApexOptions = {
@@ -84,12 +84,12 @@ const VolumeChart: React.FC = () => {
 
               {/* Legend */}
               <div className="sm:ml-4 flex-1 w-full sm:w-auto">
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {data.map((item, index) => (
                     <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <div
-                          className="w-3 h-3 rounded-full"
+                          className="w-4 h-4 rounded-full"
                           style={{ backgroundColor: chartOptions.colors![index] }}
                         ></div>
                         <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
