@@ -72,7 +72,8 @@ export const getVideoAnalyticsData = (): VideoAnalyticsResponse => {
  * @returns VideoAnalyticsData[]
  */
 export const getVideoData = (): VideoAnalyticsData[] => {
-  return (videoDataJson as any).table || [];
+  const data = (videoDataJson as any).table || [];
+  return data.slice(0, 20); // Limit to 20 videos for better performance
 };
 
 /**

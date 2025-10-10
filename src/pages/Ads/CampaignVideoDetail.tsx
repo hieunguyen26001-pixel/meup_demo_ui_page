@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import Chart from "react-apexcharts";
@@ -101,6 +101,13 @@ interface CampaignData {
   ad_info: AdInfo;
 }
 
+// Loading component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  </div>
+);
+
 const CampaignVideoDetail: React.FC = () => {
   const { campaignId } = useParams<{ campaignId: string }>();
   const navigate = useNavigate();
@@ -188,15 +195,16 @@ const CampaignVideoDetail: React.FC = () => {
     },
   };
 
-  // Get video data from JSON file
-  const videoData = getVideoData();
-
-  // Calculate analytics data once
-  const performanceDistribution = getPerformanceDistribution(videoData);
-  const engagementAnalysis = getEngagementAnalysis(videoData);
-  const costEfficiencyAnalysis = getCostEfficiencyAnalysis(videoData);
-  const creatorPerformance = getCreatorPerformanceAnalysis(videoData);
-  const timeBasedAnalysis = getTimeBasedAnalysis(videoData);
+  // Memoize video data and analytics calculations
+  const videoData = useMemo(() => getVideoData(), []);
+  
+  const analyticsData = useMemo(() => ({
+    performanceDistribution: getPerformanceDistribution(videoData),
+    engagementAnalysis: getEngagementAnalysis(videoData),
+    costEfficiencyAnalysis: getCostEfficiencyAnalysis(videoData),
+    creatorPerformance: getCreatorPerformanceAnalysis(videoData),
+    timeBasedAnalysis: getTimeBasedAnalysis(videoData),
+  }), [videoData]);
 
   const handleSort = (field: keyof VideoAnalyticsData) => {
     if (sortField === field) {
@@ -1046,8 +1054,8 @@ const CampaignVideoDetail: React.FC = () => {
               <Chart
                 options={{
                   chart: { type: "donut" },
-                  labels: performanceDistribution.map((p) => p.label),
-                  colors: performanceDistribution.map((p) => p.color),
+                  labels: analyticsData.performanceDistribution.map((p) => p.label),
+                  colors: analyticsData.performanceDistribution.map((p) => p.color),
                   legend: { position: "bottom" },
                   dataLabels: {
                     enabled: true,
@@ -1069,7 +1077,7 @@ const CampaignVideoDetail: React.FC = () => {
                     },
                   },
                 }}
-                series={performanceDistribution.map((p) => p.count)}
+                series={analyticsData.performanceDistribution.map((p) => p.count)}
                 type="donut"
                 height={300}
               />
@@ -1082,8 +1090,8 @@ const CampaignVideoDetail: React.FC = () => {
               <Chart
                 options={{
                   chart: { type: "bar" },
-                  xaxis: { categories: engagementAnalysis.map((e) => e.label) },
-                  colors: engagementAnalysis.map((e) => e.color),
+                  xaxis: { categories: analyticsData.engagementAnalysis.map((e) => e.label) },
+                  colors: analyticsData.engagementAnalysis.map((e) => e.color),
                   dataLabels: { enabled: true },
                   plotOptions: {
                     bar: {
@@ -1099,7 +1107,7 @@ const CampaignVideoDetail: React.FC = () => {
                 series={[
                   {
                     name: "Số lượng video",
-                    data: engagementAnalysis.map((e) => e.count),
+                    data: analyticsData.engagementAnalysis.map((e) => e.count),
                   },
                 ]}
                 type="bar"
@@ -1118,7 +1126,7 @@ const CampaignVideoDetail: React.FC = () => {
                 options={{
                   chart: { type: "bar" },
                   xaxis: {
-                    categories: creatorPerformance
+                    categories: analyticsData.creatorPerformance
                       .slice(0, 5)
                       .map((c) => c.name.substring(0, 15) + "..."),
                     labels: { rotate: -45 },
@@ -1141,7 +1149,7 @@ const CampaignVideoDetail: React.FC = () => {
                 series={[
                   {
                     name: "ROI",
-                    data: creatorPerformance.slice(0, 5).map((c) => c.avgROI),
+                    data: analyticsData.creatorPerformance.slice(0, 5).map((c) => c.avgROI),
                   },
                 ]}
                 type="bar"
@@ -1156,8 +1164,8 @@ const CampaignVideoDetail: React.FC = () => {
               <Chart
                 options={{
                   chart: { type: "donut" },
-                  labels: costEfficiencyAnalysis.map((c) => c.label),
-                  colors: costEfficiencyAnalysis.map((c) => c.color),
+                  labels: analyticsData.costEfficiencyAnalysis.map((c) => c.label),
+                  colors: analyticsData.costEfficiencyAnalysis.map((c) => c.color),
                   legend: { position: "bottom" },
                   dataLabels: {
                     enabled: true,
@@ -1179,7 +1187,7 @@ const CampaignVideoDetail: React.FC = () => {
                     },
                   },
                 }}
-                series={costEfficiencyAnalysis.map((c) => c.count)}
+                series={analyticsData.costEfficiencyAnalysis.map((c) => c.count)}
                 type="donut"
                 height={300}
               />
@@ -1195,7 +1203,7 @@ const CampaignVideoDetail: React.FC = () => {
               options={{
                 chart: { type: "line" },
                 xaxis: {
-                  categories: timeBasedAnalysis.retentionCurve.map(
+                  categories: analyticsData.timeBasedAnalysis.retentionCurve.map(
                     (r) => r.stage
                   ),
                 },
@@ -1219,7 +1227,7 @@ const CampaignVideoDetail: React.FC = () => {
               series={[
                 {
                   name: "Retention Rate",
-                  data: timeBasedAnalysis.retentionCurve.map((r) => r.rate),
+                  data: analyticsData.timeBasedAnalysis.retentionCurve.map((r) => r.rate),
                 },
               ]}
               type="line"

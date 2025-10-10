@@ -15,4 +15,24 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    port: 3000,
+    host: true,
+    open: true,
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'apexcharts',
+      'react-apexcharts',
+      '@react-jvectormap/core',
+      '@react-jvectormap/world'
+    ],
+  },
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    sourcemap: false,
+  },
 });
