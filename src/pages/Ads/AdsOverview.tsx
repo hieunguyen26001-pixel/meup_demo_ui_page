@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
@@ -10,8 +10,17 @@ import {
   DollarLineIcon,
 } from "../../icons";
 import Badge from "../../components/ui/badge/Badge";
+import DateRangePicker from "../../components/ui/DateRangePicker";
 
 const AdsOverview: React.FC = () => {
+  // Date picker state
+  const [dateRange, setDateRange] = useState<Date[]>([]);
+
+  const handleDateRangeChange = (dates: Date[]) => {
+    setDateRange(dates);
+    // Here you can add logic to filter data based on selected date range
+    console.log('Selected date range:', dates);
+  };
   // Revenue Chart Data
   const revenueChartOptions: ApexOptions = {
     colors: ["#F59E0B"],
@@ -427,9 +436,23 @@ const AdsOverview: React.FC = () => {
 
   return (
     <>
-      <PageMeta title="Tổng quan Quảng cáo - meup" />
+      <PageMeta title="Tổng quan Quảng cáo - meup" description="Tổng quan hiệu suất quảng cáo với datepicker để lọc dữ liệu theo khoảng thời gian" />
       
       <div className="mx-auto max-w-screen-2xl p-4">
+        {/* Date Range Filter */}
+        <div className="mb-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="flex items-center justify-start">
+              <DateRangePicker
+                value={dateRange}
+                onChange={handleDateRangeChange}
+                placeholder="Chọn khoảng thời gian"
+                className="w-80"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Top KPI Cards */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
           {/* Revenue Card */}

@@ -841,7 +841,7 @@ const GmvMaxProduct: React.FC = () => {
 
   return (
     <>
-      <PageMeta title="GMV Max sản phẩm - meup" />
+      <PageMeta title="GMV Max sản phẩm - meup" description="Quản lý và theo dõi hiệu suất chiến dịch GMV Max sản phẩm với datepicker để phân tích theo khoảng thời gian" />
       
       <div className="mx-auto max-w-screen-2xl p-4">
         <div className="mb-6">
@@ -851,6 +851,65 @@ const GmvMaxProduct: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Quản lý và theo dõi hiệu suất chiến dịch GMV Max sản phẩm
           </p>
+        </div>
+
+        {/* Date Range Filter */}
+        <div className="mb-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-2">
+                  📅 Lọc chiến dịch theo khoảng thời gian
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Chọn khoảng thời gian để phân tích hiệu suất chiến dịch
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Khoảng thời gian:
+                  </span>
+                  <div className="relative">
+                    <Flatpickr
+                      value={dateRange}
+                      onChange={handleDateChange}
+                      placeholder="Chọn khoảng thời gian"
+                      options={{
+                        mode: "range",
+                        dateFormat: "d/m/Y",
+                        allowInput: true,
+                        clickOpens: true,
+                      }}
+                      className="h-10 w-64 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-400"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                      <CalenderIcon className="size-4" />
+                    </span>
+                  </div>
+                </div>
+                {selectedDateRange && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Đã chọn:
+                    </span>
+                    <span className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full dark:bg-blue-900/20 dark:text-blue-400">
+                      {selectedDateRange}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setDateRange([]);
+                        setSelectedDateRange("");
+                      }}
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
             {/* Enhanced KPI Cards */}
