@@ -1,28 +1,101 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+import axios from "axios";
+import config from "../../config/env";
+import TikTokDatePicker from "../../components/ui/TikTokDatePicker";
+import { format, startOfMonth, endOfMonth } from "date-fns";
+
+// Simple cache implementation
+const cache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Debounce utility
+const debounce = (func: Function, wait: number) => {
+  let timeout: number;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
 
 interface CampaignData {
   campaign_id: string;
   campaign_name: string;
-  campaign_budget: string;
-  campaign_primary_status: string;
-  template_ad_roas_bid: string;
-  cost: string;
-  onsite_roi2_shopping_sku: string;
-  cost_per_onsite_roi2_shopping_sku: string;
-  onsite_roi2_shopping_value: string;
-  onsite_roi2_shopping: string;
-  billed_cost: string;
-  template_ad_start_time: string;
-  template_ad_end_time: string;
+  cost: number;
+  cost_per_order: number;
+  gross_revenue: number;
+  max_delivery_budget: number;
+  net_cost: number;
+  operation_status: string;
+  orders: number;
+  roas_bid: number;
+  roi: number;
+  schedule_end_time: string;
+  schedule_start_time: string;
+  schedule_type: string;
+  target_roi_budget: number;
+  bid_type: string;
+  stat_time_day: string;
+  days_count: number;
 }
 
 const GmvMaxProduct: React.FC = () => {
   const navigate = useNavigate();
+
+  // TikTok-style currency formatter
+  const formatTikTokCurrency = (value: number): string => {
+    if (isNaN(value) || !isFinite(value)) return '0';
+    
+    if (value >= 1000000000) {
+      return (value / 1000000000).toFixed(1) + 'B';
+    } else if (value >= 1000000) {
+      return (value / 1000000).toFixed(1) + 'M';
+    } else if (value >= 1000) {
+      return (value / 1000).toFixed(0) + 'K';
+    } else {
+      return value.toFixed(0);
+    }
+  };
+
+  // Helper function to safely format numbers and prevent NaN
+  const safeFormat = (value: number, decimals: number = 2, fallback: string = '0'): string => {
+    if (isNaN(value) || !isFinite(value)) return fallback;
+    return value.toFixed(decimals);
+  };
+
+  const safeFormatCurrency = (value: number, fallback: string = '₫0'): string => {
+    if (isNaN(value) || !isFinite(value)) return fallback;
+    return formatCurrency(value.toString());
+  };
+
+  // Helper function to safely calculate percentages
+  const safePercentage = (numerator: number, denominator: number, decimals: number = 1): string => {
+    if (isNaN(numerator) || isNaN(denominator) || denominator === 0) return '0.0';
+    return ((numerator / denominator) * 100).toFixed(decimals);
+  };
+
+  // API State
+  const [campaignData, setCampaignData] = useState<CampaignData[]>([]);
+  const [rawApiData, setRawApiData] = useState<any[]>([]); // Store raw API data for daily aggregation
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState(() => {
+    const now = new Date();
+    const startDate = startOfMonth(now);
+    const endDate = endOfMonth(now);
+    return { startDate, endDate };
+  });
+
+  // UI State
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -32,6 +105,130 @@ const GmvMaxProduct: React.FC = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [presetView, setPresetView] = useState<string>('all');
   const [visibleColumns, setVisibleColumns] = useState<string[]>(['all']);
+
+  // Fetch GMV Max Product data with cache
+  const fetchGmvMaxProductData = useCallback(async (startDate: Date, endDate: Date) => {
+    const cacheKey = `gmv-max-product_${format(startDate, 'yyyy-MM-dd')}_${format(endDate, 'yyyy-MM-dd')}`;
+    
+    // Check cache first
+    if (cache.has(cacheKey)) {
+      const cachedData = cache.get(cacheKey);
+      if (Date.now() - cachedData.timestamp < CACHE_DURATION) {
+        return cachedData.data;
+      } else {
+        cache.delete(cacheKey);
+      }
+    }
+
+    try {
+      const response = await axios.get(`${config.backendEndpoint}/api/gmv-max-product`, {
+        params: {
+          start_date: format(startDate, 'yyyy-MM-dd'),
+          end_date: format(endDate, 'yyyy-MM-dd')
+        },
+        timeout: 30000
+      });
+
+      // Cache the response
+      cache.set(cacheKey, {
+        data: response.data,
+        timestamp: Date.now()
+      });
+
+      return response.data;
+    } catch (err: any) {
+      if (err.response?.status === 429) {
+        setError('Quá nhiều yêu cầu. Vui lòng đợi một chút trước khi thử lại.');
+      } else {
+        setError(err.response?.data?.message || err.message || 'Có lỗi xảy ra khi tải dữ liệu');
+      }
+      throw err;
+    }
+  }, []);
+
+  // Fetch data with debouncing
+  const fetchDataWithDates = useCallback(
+    debounce(async (startDate: Date, endDate: Date) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await fetchGmvMaxProductData(startDate, endDate);
+        
+        // Transform API response to match our interface
+        if (data?.data?.list) {
+          // Store raw API data for daily aggregation
+          setRawApiData(data.data.list);
+          
+          // Group data by campaign_id and aggregate metrics
+          const campaignMap = new Map();
+          
+          data.data.list.forEach((item: any) => {
+            const campaignId = item.dimensions?.campaign_id || item.metrics?.campaign_id || '';
+            
+            if (!campaignMap.has(campaignId)) {
+              campaignMap.set(campaignId, {
+                campaign_id: campaignId,
+                campaign_name: item.metrics?.campaign_name || '',
+                cost: 0,
+                cost_per_order: 0,
+                gross_revenue: 0,
+                max_delivery_budget: parseFloat(item.metrics?.max_delivery_budget || '0'),
+                net_cost: 0,
+                operation_status: item.metrics?.operation_status || 'DISABLE',
+                orders: 0,
+                roas_bid: parseFloat(item.metrics?.roas_bid || '0'),
+                roi: 0,
+                schedule_end_time: item.metrics?.schedule_end_time || '',
+                schedule_start_time: item.metrics?.schedule_start_time || '',
+                schedule_type: item.metrics?.schedule_type || '',
+                target_roi_budget: parseFloat(item.metrics?.target_roi_budget || '0'),
+                bid_type: item.metrics?.bid_type || '',
+                stat_time_day: item.dimensions?.stat_time_day || '',
+                days_count: 0
+              });
+            }
+            
+            const campaign = campaignMap.get(campaignId);
+            campaign.cost += parseFloat(item.metrics?.cost || '0');
+            campaign.gross_revenue += parseFloat(item.metrics?.gross_revenue || '0');
+            campaign.net_cost += parseFloat(item.metrics?.net_cost || '0');
+            campaign.orders += parseInt(item.metrics?.orders || '0');
+            campaign.days_count += 1;
+          });
+          
+          // Calculate aggregated metrics
+          const transformedData = Array.from(campaignMap.values()).map(campaign => {
+            // Calculate average cost per order
+            campaign.cost_per_order = campaign.orders > 0 ? campaign.cost / campaign.orders : 0;
+            
+            // Calculate ROI
+            campaign.roi = campaign.cost > 0 ? campaign.gross_revenue / campaign.cost : 0;
+            
+            return campaign;
+          });
+          
+          setCampaignData(transformedData);
+        } else {
+          setCampaignData([]);
+          setRawApiData([]);
+        }
+      } catch (err: any) {
+        console.error('Error fetching GMV Max Product data:', err);
+        // Fallback to sample data if API fails
+        setCampaignData(sampleCampaignData);
+        setRawApiData([]);
+      } finally {
+        setLoading(false);
+      }
+    }, 500),
+    [fetchGmvMaxProductData]
+  );
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchDataWithDates(dateRange.startDate, dateRange.endDate);
+  }, []);
 
   // Revenue Chart Data
   const revenueChartOptions: ApexOptions = {
@@ -119,7 +316,7 @@ const GmvMaxProduct: React.FC = () => {
         show: false,
       },
       y: {
-        formatter: (val: number) => `₫${val.toLocaleString()}`,
+        formatter: (val: number) => formatTikTokCurrency(val),
       },
     },
   };
@@ -221,7 +418,7 @@ const GmvMaxProduct: React.FC = () => {
         show: false,
       },
       y: {
-        formatter: (val: number) => `₫${val.toLocaleString()}`,
+        formatter: (val: number) => formatTikTokCurrency(val),
       },
     },
   };
@@ -430,7 +627,7 @@ const GmvMaxProduct: React.FC = () => {
         show: false,
       },
       y: {
-        formatter: (val: number) => `₫${val.toLocaleString()}`,
+        formatter: (val: number) => formatTikTokCurrency(val),
       },
     },
   };
@@ -447,111 +644,44 @@ const GmvMaxProduct: React.FC = () => {
   ];
   
   // Sample data from your JSON
-  const sampleData: CampaignData[] = [
+  const sampleCampaignData: CampaignData[] = [
     {
       campaign_id: "1844659997202449",
       campaign_name: "SPU - LF02",
-      campaign_budget: "9000000",
-      campaign_primary_status: "delivery_ok",
-      template_ad_roas_bid: "6.30",
-      cost: "71181",
-      onsite_roi2_shopping_sku: "3",
-      cost_per_onsite_roi2_shopping_sku: "23727",
-      onsite_roi2_shopping_value: "296999",
-      onsite_roi2_shopping: "4.17",
-      billed_cost: "14039",
-      template_ad_start_time: "2025-09-30 10:52:52",
-      template_ad_end_time: "2035-09-28 10:52:52"
+      cost: "178089",
+      cost_per_order: "29681",
+      gross_revenue: "1314375",
+      max_delivery_budget: "0",
+      net_cost: "178089",
+      operation_status: "ENABLE",
+      orders: "6",
+      roas_bid: "3.50",
+      roi: "7.38",
+      schedule_end_time: "2035-09-28 03:52:52",
+      schedule_start_time: "2025-09-30 03:52:52",
+      schedule_type: "Continuously",
+      target_roi_budget: "6000000",
+      bid_type: "CUSTOM",
+      stat_time_day: "2025-10-07 00:00:00"
     },
     {
       campaign_id: "1842679658453105",
       campaign_name: "LAFIT - Số 1 Gen Nịt Bụng - 08/09",
-      campaign_budget: "9000000",
-      campaign_primary_status: "delivery_ok",
-      template_ad_roas_bid: "6.30",
-      cost: "28184",
-      onsite_roi2_shopping_sku: "2",
-      cost_per_onsite_roi2_shopping_sku: "14092",
-      onsite_roi2_shopping_value: "387999",
-      onsite_roi2_shopping: "13.77",
-      billed_cost: "4950",
-      template_ad_start_time: "2025-09-08 14:23:23",
-      template_ad_end_time: "2035-09-06 14:23:23"
-    },
-    {
-      campaign_id: "1843396732239954",
-      campaign_name: "COMBO 2",
-      campaign_budget: "30000000",
-      campaign_primary_status: "disable",
-      template_ad_roas_bid: "3.10",
-      cost: "347",
-      onsite_roi2_shopping_sku: "0",
-      cost_per_onsite_roi2_shopping_sku: "0",
-      onsite_roi2_shopping_value: "0",
-      onsite_roi2_shopping: "0.00",
-      billed_cost: "0",
-      template_ad_start_time: "2025-09-16 12:21:14",
-      template_ad_end_time: "2035-09-14 12:21:14"
-    },
-    {
-      campaign_id: "1845018809498770",
-      campaign_name: "SPU - LF04",
-      campaign_budget: "30000000",
-      campaign_primary_status: "roi2_mutex_exclusive_product",
-      template_ad_roas_bid: "2.70",
-      cost: "294",
-      onsite_roi2_shopping_sku: "0",
-      cost_per_onsite_roi2_shopping_sku: "0",
-      onsite_roi2_shopping_value: "0",
-      onsite_roi2_shopping: "0.00",
-      billed_cost: "103",
-      template_ad_start_time: "2025-10-04 10:01:43",
-      template_ad_end_time: "2035-10-02 10:01:43"
-    },
-    {
-      campaign_id: "1845019610772658",
-      campaign_name: "SPU - LF06",
-      campaign_budget: "30000000",
-      campaign_primary_status: "disable",
-      template_ad_roas_bid: "2.70",
-      cost: "260",
-      onsite_roi2_shopping_sku: "0",
-      cost_per_onsite_roi2_shopping_sku: "0",
-      onsite_roi2_shopping_value: "0",
-      onsite_roi2_shopping: "0.00",
-      billed_cost: "50",
-      template_ad_start_time: "2025-10-04 10:13:29",
-      template_ad_end_time: "2035-10-02 10:13:29"
-    },
-    {
-      campaign_id: "1845020000000001",
-      campaign_name: "Campaign Test - Paused",
-      campaign_budget: "15000000",
-      campaign_primary_status: "disable",
-      template_ad_roas_bid: "4.50",
-      cost: "125000",
-      onsite_roi2_shopping_sku: "8",
-      cost_per_onsite_roi2_shopping_sku: "15625",
-      onsite_roi2_shopping_value: "450000",
-      onsite_roi2_shopping: "3.60",
-      billed_cost: "125000",
-      template_ad_start_time: "2025-09-15 09:00:00",
-      template_ad_end_time: "2035-09-13 09:00:00"
-    },
-    {
-      campaign_id: "1845020000000002",
-      campaign_name: "Campaign Test - Conflict",
-      campaign_budget: "20000000",
-      campaign_primary_status: "roi2_mutex_exclusive_product",
-      template_ad_roas_bid: "5.20",
-      cost: "85000",
-      onsite_roi2_shopping_sku: "5",
-      cost_per_onsite_roi2_shopping_sku: "17000",
-      onsite_roi2_shopping_value: "320000",
-      onsite_roi2_shopping: "3.76",
-      billed_cost: "85000",
-      template_ad_start_time: "2025-09-20 14:30:00",
-      template_ad_end_time: "2035-09-18 14:30:00"
+      cost: "1265355",
+      cost_per_order: "48667",
+      gross_revenue: "3249352",
+      max_delivery_budget: "0",
+      net_cost: "1265355",
+      operation_status: "ENABLE",
+      orders: "26",
+      roas_bid: "3.50",
+      roi: "2.57",
+      schedule_end_time: "2035-09-06 07:23:23",
+      schedule_start_time: "2025-09-08 07:23:23",
+      schedule_type: "Continuously",
+      target_roi_budget: "6000000",
+      bid_type: "CUSTOM",
+      stat_time_day: "2025-10-05 00:00:00"
     }
   ];
 
@@ -565,18 +695,18 @@ const GmvMaxProduct: React.FC = () => {
 
   // Calculate derived metrics for individual campaigns
   const calculateCampaignMetrics = (campaign: CampaignData) => {
-    const cost = parseFloat(campaign.cost);
-    const billedCost = parseFloat(campaign.billed_cost);
-    const revenue = parseFloat(campaign.onsite_roi2_shopping_value);
-    const orders = parseInt(campaign.onsite_roi2_shopping_sku);
-    const budget = parseFloat(campaign.campaign_budget);
-    const roi = parseFloat(campaign.onsite_roi2_shopping);
-    const targetROAS = parseFloat(campaign.template_ad_roas_bid);
+    const cost = campaign.cost;
+    const netCost = campaign.net_cost;
+    const revenue = campaign.gross_revenue;
+    const orders = campaign.orders;
+    const budget = campaign.target_roi_budget;
+    const roi = campaign.roi;
+    const targetROAS = campaign.roas_bid;
 
     const cpa = orders > 0 ? cost / orders : 0;
     const aov = orders > 0 ? revenue / orders : 0;
     const spendBudgetRatio = budget > 0 ? (cost / budget) * 100 : 0;
-    const billedSpendRatio = cost > 0 ? (billedCost / cost) * 100 : 0;
+    const billedSpendRatio = cost > 0 ? (netCost / cost) * 100 : 0;
     const targetGap = targetROAS > 0 ? (roi / targetROAS) * 100 : 0;
 
     return {
@@ -590,9 +720,9 @@ const GmvMaxProduct: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     const statusMap: { [key: string]: { text: string; class: string } } = {
-      'delivery_ok': { text: 'Đang chạy', class: 'bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 dark:from-emerald-900/20 dark:to-teal-900/20 dark:text-emerald-400' },
-      'disable': { text: 'Tạm dừng', class: 'bg-gradient-to-r from-rose-100 to-pink-100 text-rose-800 dark:from-rose-900/20 dark:to-pink-900/20 dark:text-rose-400' },
-      'roi2_mutex_exclusive_product': { text: 'Loại trừ', class: 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 dark:from-amber-900/20 dark:to-orange-900/20 dark:text-amber-400' }
+      'ENABLE': { text: 'Đang chạy', class: 'bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 dark:from-emerald-900/20 dark:to-teal-900/20 dark:text-emerald-400' },
+      'DISABLE': { text: 'Tạm dừng', class: 'bg-gradient-to-r from-rose-100 to-pink-100 text-rose-800 dark:from-rose-900/20 dark:to-pink-900/20 dark:text-rose-400' },
+      'PAUSED': { text: 'Tạm dừng', class: 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 dark:from-amber-900/20 dark:to-orange-900/20 dark:text-amber-400' }
     };
     
     const statusInfo = statusMap[status] || { text: status, class: 'bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800 dark:from-slate-900/20 dark:to-gray-900/20 dark:text-slate-400' };
@@ -614,11 +744,11 @@ const GmvMaxProduct: React.FC = () => {
   };
 
   const getSortedData = () => {
-    let filteredData = sampleData;
+    let filteredData = campaignData;
 
     // Apply status filter
     if (statusFilter !== 'all') {
-      filteredData = filteredData.filter(campaign => campaign.campaign_primary_status === statusFilter);
+      filteredData = filteredData.filter(campaign => campaign.operation_status === statusFilter);
     }
 
     // Apply search filter
@@ -637,9 +767,9 @@ const GmvMaxProduct: React.FC = () => {
       let bValue: any = b[sortField as keyof CampaignData];
 
       // Convert to numbers for numeric fields
-      if (['campaign_budget', 'cost', 'onsite_roi2_shopping_value', 'onsite_roi2_shopping', 'billed_cost'].includes(sortField)) {
-        aValue = parseFloat(aValue);
-        bValue = parseFloat(bValue);
+      if (['cost', 'gross_revenue', 'roi', 'net_cost', 'target_roi_budget'].includes(sortField)) {
+        aValue = aValue;
+        bValue = bValue;
       }
 
       if (sortDirection === 'asc') {
@@ -650,34 +780,158 @@ const GmvMaxProduct: React.FC = () => {
     });
   };
 
-  const sortedData = getSortedData();
+  const getPaginatedData = () => {
+    const sortedData = getSortedData();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return sortedData.slice(startIndex, endIndex);
+  };
+
+  // Calculate hourly performance data from raw API data
+  const getHourlyData = () => {
+    const hourlyMap = new Map<string, { hour: string; revenue: number; orders: number; cost: number }>();
+
+    // Use raw API data to aggregate by hour across all campaigns
+    rawApiData.forEach((item: any) => {
+      const statTime = item.dimensions?.stat_time_day;
+      if (!statTime) return;
+
+      // Extract hour from stat_time_day (assuming format like "2024-01-01 14:00:00")
+      const hourMatch = statTime.match(/(\d{2}):\d{2}:\d{2}/);
+      if (!hourMatch) return;
+
+      const hour = hourMatch[1];
+      const hourKey = `${hour}:00`;
+
+      if (!hourlyMap.has(hourKey)) {
+        hourlyMap.set(hourKey, {
+          hour: hourKey,
+          revenue: 0,
+          orders: 0,
+          cost: 0
+        });
+      }
+
+      const hourlyData = hourlyMap.get(hourKey)!;
+      hourlyData.revenue += parseFloat(item.metrics?.gross_revenue || '0');
+      hourlyData.orders += parseInt(item.metrics?.orders || '0');
+      hourlyData.cost += parseFloat(item.metrics?.cost || '0');
+    });
+
+    return Array.from(hourlyMap.values())
+      .sort((a, b) => a.hour.localeCompare(b.hour))
+      .map(hourData => ({
+        ...hourData,
+        efficiency: hourData.revenue > 0 ? 
+          (hourData.revenue / hourData.cost > 2.5 ? 'Rất cao' : 
+           hourData.revenue / hourData.cost > 2.0 ? 'Cao' : 'Trung bình') : 'Thấp'
+      }));
+  };
+
+  // Calculate day of week performance data from raw API data
+  const getDayOfWeekData = () => {
+    const dayMap = new Map<string, { day: string; revenue: number; trend: string; color: string }>();
+
+    // Use raw API data to aggregate by day of week
+    rawApiData.forEach((item: any) => {
+      const statTime = item.dimensions?.stat_time_day;
+      if (!statTime) return;
+
+      // Extract date from stat_time_day
+      const dateMatch = statTime.match(/(\d{4}-\d{2}-\d{2})/);
+      if (!dateMatch) return;
+
+      const date = new Date(dateMatch[1]);
+      const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      
+      const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+      const dayName = dayNames[dayOfWeek];
+
+      if (!dayMap.has(dayName)) {
+        dayMap.set(dayName, {
+          day: dayName,
+          revenue: 0,
+          trend: '↗️',
+          color: 'green'
+        });
+      }
+
+      const dayData = dayMap.get(dayName)!;
+      dayData.revenue += parseFloat(item.metrics?.gross_revenue || '0');
+    });
+
+    // Calculate trends based on revenue
+    const sortedDays = Array.from(dayMap.values()).sort((a, b) => b.revenue - a.revenue);
+    const maxRevenue = sortedDays[0]?.revenue || 0;
+
+    return sortedDays.map((dayData, index) => ({
+      ...dayData,
+      trend: index === 0 ? '↗️' : dayData.revenue > maxRevenue * 0.8 ? '↗️' : '↘️',
+      color: dayData.revenue > maxRevenue * 0.8 ? 'green' : dayData.revenue > maxRevenue * 0.6 ? 'blue' : 'gray'
+    }));
+  };
+
+  // Calculate daily aggregated data for charts
+  const getDailyData = () => {
+    const dailyMap = new Map();
+    
+    // Use raw API data to aggregate by day across all campaigns
+    rawApiData.forEach((item: any) => {
+      const date = item.dimensions?.stat_time_day?.split(' ')[0] || ''; // Get date part only
+      if (!date) return;
+      
+      if (!dailyMap.has(date)) {
+        dailyMap.set(date, {
+          date,
+          totalRevenue: 0,
+          totalCost: 0,
+          totalOrders: 0,
+          avgROI: 0,
+          avgCPA: 0
+        });
+      }
+      
+      const dailyData = dailyMap.get(date);
+      dailyData.totalRevenue += parseFloat(item.metrics?.gross_revenue || '0');
+      dailyData.totalCost += parseFloat(item.metrics?.cost || '0');
+      dailyData.totalOrders += parseInt(item.metrics?.orders || '0');
+    });
+    
+    // Calculate average ROI and CPA for each day
+    Array.from(dailyMap.values()).forEach(day => {
+      day.avgROI = day.totalCost > 0 ? day.totalRevenue / day.totalCost : 0;
+      day.avgCPA = day.totalOrders > 0 ? day.totalCost / day.totalOrders : 0;
+    });
+    
+    return Array.from(dailyMap.values()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  };
 
   // Calculate derived metrics
   const calculateMetrics = () => {
-    const totalSpend = sampleData.reduce((sum, campaign) => sum + parseFloat(campaign.cost), 0);
-    const totalBilledCost = sampleData.reduce((sum, campaign) => sum + parseFloat(campaign.billed_cost), 0);
-    const totalRevenue = sampleData.reduce((sum, campaign) => sum + parseFloat(campaign.onsite_roi2_shopping_value), 0);
-    const totalOrders = sampleData.reduce((sum, campaign) => sum + parseInt(campaign.onsite_roi2_shopping_sku), 0);
-    const totalBudget = sampleData.reduce((sum, campaign) => sum + parseFloat(campaign.campaign_budget), 0);
+    const totalSpend = campaignData.reduce((sum, campaign) => sum + campaign.cost, 0);
+    const totalNetCost = campaignData.reduce((sum, campaign) => sum + campaign.net_cost, 0);
+    const totalRevenue = campaignData.reduce((sum, campaign) => sum + campaign.gross_revenue, 0);
+    const totalOrders = campaignData.reduce((sum, campaign) => sum + campaign.orders, 0);
+    const totalBudget = campaignData.reduce((sum, campaign) => sum + campaign.target_roi_budget, 0);
     
-    const avgROI = totalOrders > 0 ? totalRevenue / totalSpend : 0;
+    const avgROI = totalSpend > 0 ? totalRevenue / totalSpend : 0;
     const avgCPA = totalOrders > 0 ? totalSpend / totalOrders : 0;
     const avgAOV = totalOrders > 0 ? totalRevenue / totalOrders : 0;
     const spendBudgetRatio = totalBudget > 0 ? (totalSpend / totalBudget) * 100 : 0;
-    const billedSpendRatio = totalSpend > 0 ? (totalBilledCost / totalSpend) * 100 : 0;
+    const billedSpendRatio = totalSpend > 0 ? (totalNetCost / totalSpend) * 100 : 0;
     
     // Find best/worst campaigns
-    const campaignsWithROI = sampleData.filter(c => parseFloat(c.onsite_roi2_shopping_sku) > 0);
-    const bestROICampaign = campaignsWithROI.reduce((best, current) => 
-      parseFloat(current.onsite_roi2_shopping) > parseFloat(best.onsite_roi2_shopping) ? current : best
-    );
-    const worstROICampaign = campaignsWithROI.reduce((worst, current) => 
-      parseFloat(current.onsite_roi2_shopping) < parseFloat(worst.onsite_roi2_shopping) ? current : worst
-    );
+    const campaignsWithROI = campaignData.filter(c => c.orders > 0);
+    const bestROICampaign = campaignsWithROI.length > 0 ? campaignsWithROI.reduce((best, current) => 
+      current.roi > best.roi ? current : best
+    ) : null;
+    const worstROICampaign = campaignsWithROI.length > 0 ? campaignsWithROI.reduce((worst, current) => 
+      current.roi < worst.roi ? current : worst
+    ) : null;
 
     return {
       totalSpend,
-      totalBilledCost,
+      totalNetCost,
       totalRevenue,
       totalOrders,
       totalBudget,
@@ -697,18 +951,18 @@ const GmvMaxProduct: React.FC = () => {
   const generateAlerts = () => {
     const alertsList: any[] = [];
     
-    sampleData.forEach(campaign => {
+    campaignData.forEach(campaign => {
       const campaignMetrics = calculateCampaignMetrics(campaign);
-      const roi = parseFloat(campaign.onsite_roi2_shopping);
-      const cost = parseFloat(campaign.cost);
-      const orders = parseInt(campaign.onsite_roi2_shopping_sku);
+      const roi = campaign.roi;
+      const cost = campaign.cost;
+      const orders = campaign.orders;
       
       // ROI alerts
       if (roi < 2 && cost > 50000) {
         alertsList.push({
           type: 'error',
           title: 'ROI Thấp',
-          message: `${campaign.campaign_name} có ROI ${roi} < 2 và chi phí cao`,
+          message: `${campaign.campaign_name} có ROI ${roi.toFixed(2)} < 2 và chi phí cao`,
           campaign: campaign.campaign_name
         });
       }
@@ -728,7 +982,7 @@ const GmvMaxProduct: React.FC = () => {
         alertsList.push({
           type: 'error',
           title: 'Không Có Đơn Hàng',
-          message: `${campaign.campaign_name} chi phí ${formatCurrency(cost.toString())} nhưng không có đơn hàng`,
+          message: `${campaign.campaign_name} chi phí ${formatTikTokCurrency(cost)} nhưng không có đơn hàng`,
           campaign: campaign.campaign_name
         });
       }
@@ -752,7 +1006,7 @@ const GmvMaxProduct: React.FC = () => {
   // Campaign comparison data
   const getComparisonData = () => {
     return selectedCampaigns.map(campaignId => {
-      const campaign = sampleData.find(c => c.campaign_id === campaignId);
+      const campaign = campaignData.find(c => c.campaign_id === campaignId);
       if (!campaign) return null;
       const campaignMetrics = calculateCampaignMetrics(campaign);
       return {
@@ -763,10 +1017,16 @@ const GmvMaxProduct: React.FC = () => {
   };
 
   const comparisonData = getComparisonData();
+  const dailyData = getDailyData();
+  const hourlyData = getHourlyData(); // New variable for hourly data
+  const dayOfWeekData = getDayOfWeekData(); // New variable for day of week data
+  const sortedData = getSortedData();
+  const paginatedData = getPaginatedData();
+  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
 
   // Export functions
   const exportToCSV = () => {
-    const headers = ['Campaign ID', 'Campaign Name', 'Status', 'Budget', 'Cost', 'Orders', 'GMV', 'ROI', 'CPA', 'AOV', 'Spend/Budget %', 'Billed Cost', 'Start Date'];
+    const headers = ['Campaign ID', 'Campaign Name', 'Status', 'Budget', 'Cost', 'Orders', 'GMV', 'ROI', 'CPA', 'AOV', 'Start Date'];
     const csvContent = [
       headers.join(','),
       ...sortedData.map(campaign => {
@@ -774,17 +1034,15 @@ const GmvMaxProduct: React.FC = () => {
         return [
           campaign.campaign_id,
           `"${campaign.campaign_name}"`,
-          campaign.campaign_primary_status,
-          campaign.campaign_budget,
-          campaign.cost,
-          campaign.onsite_roi2_shopping_sku,
-          campaign.onsite_roi2_shopping_value,
-          campaign.onsite_roi2_shopping,
-          metrics.cpa.toFixed(0),
-          metrics.aov.toFixed(0),
-          metrics.spendBudgetRatio.toFixed(1),
-          campaign.billed_cost,
-          campaign.template_ad_start_time
+          campaign.operation_status,
+          campaign.target_roi_budget.toString(),
+          campaign.cost.toString(),
+          campaign.orders.toString(),
+          campaign.gross_revenue.toString(),
+          campaign.roi.toFixed(2),
+          metrics.cpa > 0 ? metrics.cpa.toFixed(0) : 'N/A',
+          metrics.aov > 0 ? metrics.aov.toFixed(0) : 'N/A',
+          campaign.schedule_start_time
         ].join(',');
       })
     ].join('\n');
@@ -802,16 +1060,16 @@ const GmvMaxProduct: React.FC = () => {
     switch (view) {
       case 'roi':
         setVisibleColumns(['campaign', 'status', 'roi', 'cpa', 'aov', 'revenue']);
-        setSortField('onsite_roi2_shopping');
+        setSortField('roi');
         setSortDirection('desc');
         break;
       case 'growth':
         setVisibleColumns(['campaign', 'status', 'orders', 'revenue', 'roi', 'spendBudget']);
-        setSortField('onsite_roi2_shopping_sku');
+        setSortField('orders');
         setSortDirection('desc');
         break;
       case 'cost':
-        setVisibleColumns(['campaign', 'status', 'budget', 'cost', 'spendBudget', 'billedCost']);
+        setVisibleColumns(['campaign', 'status', 'budget', 'cost', 'spendBudget', 'netCost']);
         setSortField('cost');
         setSortDirection('desc');
         break;
@@ -836,6 +1094,93 @@ const GmvMaxProduct: React.FC = () => {
           </p>
         </div>
 
+        {/* Date Range Filter Card */}
+        <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="flex items-center gap-4">
+            <TikTokDatePicker
+              selectsRange={true}
+              value={[dateRange.startDate, dateRange.endDate]}
+              onChange={(dates) => {
+                if (Array.isArray(dates) && dates.length === 2) {
+                  setDateRange({ startDate: dates[0], endDate: dates[1] });
+                  fetchDataWithDates(dates[0], dates[1]);
+                }
+              }}
+              placeholder="Chọn khoảng thời gian"
+              className="w-64"
+            />
+            
+            {loading && (
+              <div className="text-blue-600 text-sm flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                Đang tải dữ liệu...
+              </div>
+            )}
+            
+            {error && (
+              <div className="text-red-600 text-sm">
+                <strong>Lỗi:</strong> {error}
+              </div>
+            )}
+          </div>
+        </div>
+
+            {/* Alert Dashboard */}
+            {alertsList.length > 0 && (
+              <div className="mb-6">
+                <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 flex items-center gap-2">
+                      <span className="text-red-500">⚠️</span>
+                      Cảnh Báo & Thông Báo ({alertsList.length})
+                    </h3>
+                    <button 
+                      onClick={() => setAlerts([])}
+                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {alertsList.slice(0, 6).map((alert, index) => (
+                      <div key={index} className={`p-3 rounded-lg border-l-4 ${
+                        alert.type === 'error' 
+                          ? 'bg-red-50 border-red-400 dark:bg-red-900/10 dark:border-red-500'
+                          : 'bg-yellow-50 border-yellow-400 dark:bg-yellow-900/10 dark:border-yellow-500'
+                      }`}>
+                        <div className="flex items-start gap-2">
+                          <span className={`text-sm font-medium ${
+                            alert.type === 'error' ? 'text-red-800 dark:text-red-300' : 'text-yellow-800 dark:text-yellow-300'
+                          }`}>
+                            {alert.type === 'error' ? '🚨' : '⚠️'}
+                          </span>
+                          <div>
+                            <p className={`text-sm font-semibold ${
+                              alert.type === 'error' ? 'text-red-800 dark:text-red-300' : 'text-yellow-800 dark:text-yellow-300'
+                            }`}>
+                              {alert.title}
+                            </p>
+                            <p className={`text-xs ${
+                              alert.type === 'error' ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400'
+                            }`}>
+                              {alert.message}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {alertsList.length > 6 && (
+                    <div className="mt-3 text-center">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Và {alertsList.length - 6} cảnh báo khác...
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Enhanced KPI Cards */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
               {/* Total Spend */}
@@ -844,7 +1189,7 @@ const GmvMaxProduct: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Tổng Chi Phí</p>
                     <p className="text-2xl font-bold text-gray-800 dark:text-white/90">
-                      ₫{metrics.totalSpend.toLocaleString()}
+                      {formatTikTokCurrency(metrics.totalSpend)}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {metrics.spendBudgetRatio.toFixed(1)}% ngân sách
@@ -862,7 +1207,7 @@ const GmvMaxProduct: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Tổng Doanh Thu</p>
                     <p className="text-2xl font-bold text-gray-800 dark:text-white/90">
-                      ₫{metrics.totalRevenue.toLocaleString()}
+                      {formatTikTokCurrency(metrics.totalRevenue)}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {metrics.totalOrders} đơn hàng
@@ -883,7 +1228,7 @@ const GmvMaxProduct: React.FC = () => {
                       {metrics.avgROI.toFixed(2)}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      CPA: ₫{metrics.avgCPA.toLocaleString()}
+                      CPA: {formatTikTokCurrency(metrics.avgCPA)}
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-gradient-to-br from-violet-100 to-purple-100 rounded-xl dark:from-violet-900/20 dark:to-purple-900/20 flex items-center justify-center">
@@ -898,7 +1243,7 @@ const GmvMaxProduct: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">AOV Trung Bình</p>
                     <p className="text-2xl font-bold text-gray-800 dark:text-white/90">
-                      ₫{metrics.avgAOV.toLocaleString()}
+                      {formatTikTokCurrency(metrics.avgAOV)}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Giá trị đơn hàng
@@ -910,6 +1255,9 @@ const GmvMaxProduct: React.FC = () => {
                 </div>
               </div>
             </div>
+
+
+
 
             {/* Campaign Comparison Section */}
             {showComparison && comparisonData.length > 0 && (
@@ -937,7 +1285,6 @@ const GmvMaxProduct: React.FC = () => {
                           <th className="px-3 py-2 text-right">ROI</th>
                           <th className="px-3 py-2 text-right">CPA</th>
                           <th className="px-3 py-2 text-right">AOV</th>
-                          <th className="px-3 py-2 text-right">Spend/Budget %</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -945,48 +1292,37 @@ const GmvMaxProduct: React.FC = () => {
                           <tr key={campaign.campaign_id} className="border-b border-gray-200 dark:border-gray-700">
                             <td className="px-3 py-2">
                               <button 
-                                onClick={() => navigate(`/meup/campaign-video/${campaign.campaign_id}`)}
+                                onClick={() => navigate(`campaign-video/${campaign.campaign_id}?startDate=${dateRange.startDate.toISOString().split('T')[0]}&endDate=${dateRange.endDate.toISOString().split('T')[0]}`)}
                                 className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-left"
                               >
                                 {campaign.campaign_name}
                               </button>
                             </td>
                             <td className="px-3 py-2 text-right text-gray-800 dark:text-white/90">
-                              {formatCurrency(campaign.cost)}
+                              {formatTikTokCurrency(campaign.cost)}
                             </td>
                             <td className="px-3 py-2 text-right text-gray-800 dark:text-white/90">
-                              {formatCurrency(campaign.onsite_roi2_shopping_value)}
+                              {formatTikTokCurrency(campaign.gross_revenue)}
                             </td>
                             <td className="px-3 py-2 text-right text-gray-800 dark:text-white/90">
-                              {campaign.onsite_roi2_shopping_sku}
+                              {campaign.orders}
                             </td>
                             <td className="px-3 py-2 text-right">
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                parseFloat(campaign.onsite_roi2_shopping) >= 3 
+                                campaign.roi >= 3 
                                   ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                                  : parseFloat(campaign.onsite_roi2_shopping) >= 2
+                                  : campaign.roi >= 2
                                   ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
                                   : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
                               }`}>
-                                {campaign.onsite_roi2_shopping}
+                                {campaign.roi.toFixed(2)}
                               </span>
                             </td>
                             <td className="px-3 py-2 text-right text-gray-800 dark:text-white/90">
-                              {campaign.metrics.cpa > 0 ? formatCurrency(campaign.metrics.cpa.toString()) : 'N/A'}
+                              {campaign.metrics.cpa > 0 ? formatTikTokCurrency(campaign.metrics.cpa) : 'N/A'}
                             </td>
                             <td className="px-3 py-2 text-right text-gray-800 dark:text-white/90">
-                              {campaign.metrics.aov > 0 ? formatCurrency(campaign.metrics.aov.toString()) : 'N/A'}
-                            </td>
-                            <td className="px-3 py-2 text-right">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                campaign.metrics.spendBudgetRatio > 80 
-                                  ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                                  : campaign.metrics.spendBudgetRatio > 50
-                                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
-                                  : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                              }`}>
-                                {campaign.metrics.spendBudgetRatio.toFixed(1)}%
-                              </span>
+                              {campaign.metrics.aov > 0 ? formatTikTokCurrency(campaign.metrics.aov) : 'N/A'}
                             </td>
                           </tr>
                         ))}
@@ -1003,7 +1339,7 @@ const GmvMaxProduct: React.FC = () => {
               <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                    Doanh Thu vs Chi Phí theo Chiến Dịch
+                    Top 5 Chiến Dịch - Doanh Thu vs Chi Phí
                   </h3>
                   <div className="flex items-center gap-2 text-xs">
                     <div className="flex items-center gap-1">
@@ -1049,7 +1385,10 @@ const GmvMaxProduct: React.FC = () => {
                       offsetY: -20
                     },
                     xaxis: {
-                      categories: sampleData.map(c => c.campaign_name.substring(0, 8) + "..."),
+                      categories: campaignData
+                        .sort((a, b) => b.gross_revenue - a.gross_revenue)
+                        .slice(0, 5)
+                        .map(c => c.campaign_name.substring(0, 8) + "..."),
                       labels: {
                         style: {
                           fontSize: '10px',
@@ -1107,7 +1446,7 @@ const GmvMaxProduct: React.FC = () => {
                     tooltip: {
                       y: {
                         formatter: function (val: number) {
-                          return "₫" + val.toLocaleString('vi-VN');
+                          return formatTikTokCurrency(val);
                         }
                       },
                       style: {
@@ -1118,11 +1457,17 @@ const GmvMaxProduct: React.FC = () => {
                   series={[
                     {
                       name: "💰 Doanh Thu",
-                      data: sampleData.map(c => parseFloat(c.onsite_roi2_shopping_value))
+                      data: campaignData
+                        .sort((a, b) => b.gross_revenue - a.gross_revenue)
+                        .slice(0, 5)
+                        .map(c => c.gross_revenue)
                     },
                     {
                       name: "💸 Chi Phí", 
-                      data: sampleData.map(c => parseFloat(c.cost))
+                      data: campaignData
+                        .sort((a, b) => b.gross_revenue - a.gross_revenue)
+                        .slice(0, 5)
+                        .map(c => c.cost)
                     }
                   ]} 
                   type="bar" 
@@ -1137,7 +1482,7 @@ const GmvMaxProduct: React.FC = () => {
                     Hiệu Suất ROI
                   </h3>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Top {Math.min(5, sampleData.length)} chiến dịch
+                    Top {Math.min(5, campaignData.length)} chiến dịch
                   </div>
                 </div>
                 <Chart 
@@ -1168,8 +1513,8 @@ const GmvMaxProduct: React.FC = () => {
                       }
                     },
                     xaxis: {
-                      categories: sampleData
-                        .sort((a, b) => parseFloat(b.onsite_roi2_shopping) - parseFloat(a.onsite_roi2_shopping))
+                      categories: campaignData
+                        .sort((a, b) => b.roi - a.roi)
                         .slice(0, 5)
                         .map(c => c.campaign_name.substring(0, 10) + "..."),
                       labels: {
@@ -1210,10 +1555,10 @@ const GmvMaxProduct: React.FC = () => {
                   }} 
                   series={[{
                     name: "📈 ROI",
-                    data: sampleData
-                      .sort((a, b) => parseFloat(b.onsite_roi2_shopping) - parseFloat(a.onsite_roi2_shopping))
+                    data: campaignData
+                      .sort((a, b) => b.roi - a.roi)
                       .slice(0, 5)
-                      .map(c => parseFloat(c.onsite_roi2_shopping))
+                      .map(c => c.roi)
                   }]} 
                   type="bar" 
                   height={220} 
@@ -1240,7 +1585,7 @@ const GmvMaxProduct: React.FC = () => {
                       toolbar: { show: false },
                       background: 'transparent'
                     },
-                    labels: sampleData.map(c => c.campaign_name.substring(0, 8) + "..."),
+                    labels: campaignData.map(c => c.campaign_name.substring(0, 8) + "..."),
                     legend: {
                       position: "right",
                       fontSize: "11px",
@@ -1309,12 +1654,12 @@ const GmvMaxProduct: React.FC = () => {
                     tooltip: {
                       y: {
                         formatter: function (val: number) {
-                          return "₫" + val.toLocaleString('vi-VN');
+                          return formatTikTokCurrency(val);
                         }
                       }
                     }
                   }} 
-                  series={sampleData.map(c => parseFloat(c.campaign_budget))} 
+                  series={campaignData.map(c => c.target_roi_budget)} 
                   type="pie" 
                   height={220} 
                 />
@@ -1388,8 +1733,8 @@ const GmvMaxProduct: React.FC = () => {
                       }
                     },
                     yaxis: {
-                      categories: sampleData
-                        .sort((a, b) => parseFloat(b.onsite_roi2_shopping) - parseFloat(a.onsite_roi2_shopping))
+                      categories: campaignData
+                        .sort((a, b) => b.roi - a.roi)
                         .slice(0, 5)
                         .map(c => c.campaign_name.substring(0, 15) + "..."),
                       labels: {
@@ -1420,8 +1765,8 @@ const GmvMaxProduct: React.FC = () => {
                     tooltip: {
                       y: {
                         formatter: function (val: number, { seriesIndex, dataPointIndex }) {
-                          const campaign = sampleData
-                            .sort((a, b) => parseFloat(b.onsite_roi2_shopping) - parseFloat(a.onsite_roi2_shopping))
+                          const campaign = campaignData
+                            .sort((a, b) => b.roi - a.roi)
                             .slice(0, 5)[dataPointIndex];
                           return `${campaign.campaign_name}: ROI ${val.toFixed(2)}`;
                         }
@@ -1433,10 +1778,10 @@ const GmvMaxProduct: React.FC = () => {
                   }} 
                   series={[{
                     name: "📈 ROI",
-                    data: sampleData
-                      .sort((a, b) => parseFloat(b.onsite_roi2_shopping) - parseFloat(a.onsite_roi2_shopping))
+                    data: campaignData
+                      .sort((a, b) => b.roi - a.roi)
                       .slice(0, 5)
-                      .map(c => parseFloat(c.onsite_roi2_shopping))
+                      .map(c => c.roi)
                   }]} 
                   type="bar" 
                   height={220} 
@@ -1500,9 +1845,9 @@ const GmvMaxProduct: React.FC = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="all">Tất Cả Trạng Thái</option>
-                    <option value="delivery_ok">Đang Chạy</option>
-                    <option value="disable">Tạm Dừng</option>
-                    <option value="roi2_mutex_exclusive_product">Loại Trừ</option>
+                    <option value="ENABLE">Đang Chạy</option>
+                    <option value="DISABLE">Tạm Dừng</option>
+                    <option value="PAUSED">Tạm Dừng</option>
                   </select>
                 </div>
                 <div className="sm:w-48">
@@ -1535,13 +1880,13 @@ const GmvMaxProduct: React.FC = () => {
                   Chọn Tất Cả
                 </button>
                 <button
-                  onClick={() => setSelectedCampaigns(sortedData.filter(c => parseFloat(c.onsite_roi2_shopping) >= 3).map(c => c.campaign_id))}
+                  onClick={() => setSelectedCampaigns(sortedData.filter(c => c.roi >= 3).map(c => c.campaign_id))}
                   className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-lg hover:bg-green-200 dark:bg-green-900/20 dark:text-green-300 dark:hover:bg-green-900/30"
                 >
                   Chọn ROI Cao (≥3)
                 </button>
                 <button
-                  onClick={() => setSelectedCampaigns(sortedData.filter(c => c.campaign_primary_status === 'delivery_ok').map(c => c.campaign_id))}
+                  onClick={() => setSelectedCampaigns(sortedData.filter(c => c.operation_status === 'ENABLE').map(c => c.campaign_id))}
                   className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/30"
                 >
                   Chọn Đang Chạy
@@ -1556,12 +1901,12 @@ const GmvMaxProduct: React.FC = () => {
                         <th className="px-4 py-3 w-12 whitespace-nowrap">
                           <input
                             type="checkbox"
-                            checked={selectedCampaigns.length === sortedData.length && sortedData.length > 0}
+                            checked={selectedCampaigns.length === paginatedData.length && paginatedData.length > 0}
                             onChange={(e) => {
                               if (e.target.checked) {
-                                setSelectedCampaigns(sortedData.map(c => c.campaign_id));
+                                setSelectedCampaigns([...selectedCampaigns, ...paginatedData.map(c => c.campaign_id)]);
                               } else {
-                                setSelectedCampaigns([]);
+                                setSelectedCampaigns(selectedCampaigns.filter(id => !paginatedData.map(c => c.campaign_id).includes(id)));
                               }
                             }}
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -1580,13 +1925,13 @@ const GmvMaxProduct: React.FC = () => {
                             )}
                           </button>
                         </th>
-                        <th className="px-4 py-3">
+                        <th className="px-4 py-3 whitespace-nowrap">
                           <button 
-                            onClick={() => handleSort('campaign_primary_status')}
+                            onClick={() => handleSort('operation_status')}
                             className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
                           >
                             Trạng thái
-                            {sortField === 'campaign_primary_status' && (
+                            {sortField === 'operation_status' && (
                               <span className="text-blue-500">
                                 {sortDirection === 'asc' ? '↑' : '↓'}
                               </span>
@@ -1595,11 +1940,11 @@ const GmvMaxProduct: React.FC = () => {
                         </th>
                         <th className="px-4 py-3">
                           <button 
-                            onClick={() => handleSort('campaign_budget')}
+                            onClick={() => handleSort('target_roi_budget')}
                             className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
                           >
                             Ngân sách
-                            {sortField === 'campaign_budget' && (
+                            {sortField === 'target_roi_budget' && (
                               <span className="text-blue-500">
                                 {sortDirection === 'asc' ? '↑' : '↓'}
                               </span>
@@ -1621,11 +1966,11 @@ const GmvMaxProduct: React.FC = () => {
                         </th>
                         <th className="px-4 py-3 whitespace-nowrap">
                           <button 
-                            onClick={() => handleSort('onsite_roi2_shopping_sku')}
+                            onClick={() => handleSort('orders')}
                             className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
                           >
                             Đơn hàng
-                            {sortField === 'onsite_roi2_shopping_sku' && (
+                            {sortField === 'orders' && (
                               <span className="text-blue-500">
                                 {sortDirection === 'asc' ? '↑' : '↓'}
                               </span>
@@ -1634,11 +1979,11 @@ const GmvMaxProduct: React.FC = () => {
                         </th>
                         <th className="px-4 py-3">
                           <button 
-                            onClick={() => handleSort('onsite_roi2_shopping_value')}
+                            onClick={() => handleSort('gross_revenue')}
                             className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
                           >
                             GMV
-                            {sortField === 'onsite_roi2_shopping_value' && (
+                            {sortField === 'gross_revenue' && (
                               <span className="text-blue-500">
                                 {sortDirection === 'asc' ? '↑' : '↓'}
                               </span>
@@ -1647,11 +1992,11 @@ const GmvMaxProduct: React.FC = () => {
                         </th>
                         <th className="px-4 py-3">
                           <button 
-                            onClick={() => handleSort('onsite_roi2_shopping')}
+                            onClick={() => handleSort('roi')}
                             className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
                           >
                             ROI
-                            {sortField === 'onsite_roi2_shopping' && (
+                            {sortField === 'roi' && (
                               <span className="text-blue-500">
                                 {sortDirection === 'asc' ? '↑' : '↓'}
                               </span>
@@ -1669,30 +2014,12 @@ const GmvMaxProduct: React.FC = () => {
                           </span>
                         </th>
                         <th className="px-4 py-3 whitespace-nowrap">
-                          <span className="flex items-center gap-1">
-                            Spend/Budget %
-                          </span>
-                        </th>
-                        <th className="px-4 py-3">
                           <button 
-                            onClick={() => handleSort('billed_cost')}
-                            className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
-                          >
-                            Billed Cost
-                            {sortField === 'billed_cost' && (
-                              <span className="text-blue-500">
-                                {sortDirection === 'asc' ? '↑' : '↓'}
-                              </span>
-                            )}
-                          </button>
-                        </th>
-                        <th className="px-4 py-3 whitespace-nowrap">
-                          <button 
-                            onClick={() => handleSort('template_ad_start_time')}
+                            onClick={() => handleSort('schedule_start_time')}
                             className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
                           >
                             Ngày bắt đầu
-                            {sortField === 'template_ad_start_time' && (
+                            {sortField === 'schedule_start_time' && (
                               <span className="text-blue-500">
                                 {sortDirection === 'asc' ? '↑' : '↓'}
                               </span>
@@ -1702,7 +2029,7 @@ const GmvMaxProduct: React.FC = () => {
                       </tr>
                     </thead>
                 <tbody>
-                  {sortedData.map((campaign, index) => {
+                  {paginatedData.map((campaign, index) => {
                     const campaignMetrics = calculateCampaignMetrics(campaign);
                     return (
                       <tr key={campaign.campaign_id} className="border-b border-gray-200 dark:border-gray-700">
@@ -1723,7 +2050,7 @@ const GmvMaxProduct: React.FC = () => {
                         <td className="px-4 py-4">
                           <div>
                             <button 
-                              onClick={() => navigate(`/meup/campaign-video/${campaign.campaign_id}`)}
+                              onClick={() => navigate(`/campaign-video/${campaign.campaign_id}`)}
                               className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-left"
                             >
                               {campaign.campaign_name}
@@ -1733,54 +2060,40 @@ const GmvMaxProduct: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-4">
-                          {getStatusBadge(campaign.campaign_primary_status)}
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          {getStatusBadge(campaign.operation_status)}
                         </td>
                         <td className="px-4 py-4 text-gray-800 dark:text-white/90">
-                          {formatCurrency(campaign.campaign_budget)}
+                          {formatTikTokCurrency(campaign.target_roi_budget)}
                         </td>
                         <td className="px-4 py-4 text-gray-800 dark:text-white/90">
-                          {formatCurrency(campaign.cost)}
+                          {formatTikTokCurrency(campaign.cost)}
                         </td>
                         <td className="px-4 py-4 text-gray-800 dark:text-white/90">
-                          {campaign.onsite_roi2_shopping_sku}
+                          {campaign.orders}
                         </td>
                         <td className="px-4 py-4 text-gray-800 dark:text-white/90">
-                          {formatCurrency(campaign.onsite_roi2_shopping_value)}
+                          {formatTikTokCurrency(campaign.gross_revenue)}
                         </td>
                         <td className="px-4 py-4 text-gray-800 dark:text-white/90">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            parseFloat(campaign.onsite_roi2_shopping) >= 3 
+                            campaign.roi >= 3 
                               ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                              : parseFloat(campaign.onsite_roi2_shopping) >= 2
+                              : campaign.roi >= 2
                               ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
                               : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
                           }`}>
-                            {campaign.onsite_roi2_shopping}
+                            {campaign.roi.toFixed(2)}
                           </span>
                         </td>
                         <td className="px-4 py-4 text-gray-800 dark:text-white/90">
-                          {campaignMetrics.cpa > 0 ? formatCurrency(campaignMetrics.cpa.toString()) : 'N/A'}
+                          {campaignMetrics.cpa > 0 ? formatTikTokCurrency(campaignMetrics.cpa) : 'N/A'}
                         </td>
                         <td className="px-4 py-4 text-gray-800 dark:text-white/90">
-                          {campaignMetrics.aov > 0 ? formatCurrency(campaignMetrics.aov.toString()) : 'N/A'}
+                          {campaignMetrics.aov > 0 ? formatTikTokCurrency(campaignMetrics.aov) : 'N/A'}
                         </td>
                         <td className="px-4 py-4 text-gray-800 dark:text-white/90">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            campaignMetrics.spendBudgetRatio > 80 
-                              ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                              : campaignMetrics.spendBudgetRatio > 50
-                              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
-                              : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                          }`}>
-                            {campaignMetrics.spendBudgetRatio.toFixed(1)}%
-                          </span>
-                        </td>
-                        <td className="px-4 py-4 text-gray-800 dark:text-white/90">
-                          {formatCurrency(campaign.billed_cost)}
-                        </td>
-                        <td className="px-4 py-4 text-gray-800 dark:text-white/90">
-                          {formatDate(campaign.template_ad_start_time)}
+                          {formatDate(campaign.schedule_start_time)}
                         </td>
                       </tr>
                     );
@@ -1792,7 +2105,7 @@ const GmvMaxProduct: React.FC = () => {
             {/* Pagination */}
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Hiển thị {sortedData.length} chiến dịch
+                Hiển thị {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, sortedData.length)} trong tổng số {sortedData.length} chiến dịch
               </div>
               <div className="flex items-center gap-2">
                 <button 
@@ -1803,11 +2116,11 @@ const GmvMaxProduct: React.FC = () => {
                   Trước
                 </button>
                 <span className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-lg dark:bg-blue-900/20 dark:text-blue-400">
-                  {currentPage}
+                  {currentPage} / {totalPages}
                 </span>
                 <button 
-                  onClick={() => setCurrentPage(Math.min(Math.ceil(sortedData.length / 10), currentPage + 1))}
-                  disabled={currentPage >= Math.ceil(sortedData.length / 10)}
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage >= totalPages}
                   className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Sau
@@ -1821,7 +2134,7 @@ const GmvMaxProduct: React.FC = () => {
               <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
                 <div className="mb-3">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                    Tổng Doanh Thu
+                    Tổng Doanh Thu theo Ngày
                   </h3>
                 </div>
                 <Chart 
@@ -1851,11 +2164,10 @@ const GmvMaxProduct: React.FC = () => {
                       colors: ["transparent"],
                     },
                     xaxis: {
-                      categories: [
-                        "01/09", "02/09", "03/09", "04/09", "05/09", "06/09", "07/09", "08/09", "09/09", "10/09",
-                        "11/09", "12/09", "13/09", "14/09", "15/09", "16/09", "17/09", "18/09", "19/09", "20/09",
-                        "21/09", "22/09", "23/09", "24/09", "25/09", "26/09", "27/09", "28/09", "29/09", "30/09"
-                      ],
+                      categories: dailyData.length > 0 ? dailyData.map(d => {
+                        const date = new Date(d.date);
+                        return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+                      }) : ['01/10'],
                       axisBorder: { show: false },
                       axisTicks: { show: false },
                       labels: {
@@ -1875,16 +2187,12 @@ const GmvMaxProduct: React.FC = () => {
                     },
                     fill: { opacity: 1 },
                     tooltip: {
-                      y: { formatter: (val: number) => `₫${val.toLocaleString()}` },
+                      y: { formatter: (val: number) => formatTikTokCurrency(val) },
                     },
                   }} 
                   series={[{
                     name: "Tổng Doanh Thu",
-                    data: [
-                      45000000, 52000000, 48000000, 61000000, 55000000, 67000000, 72000000, 68000000, 95000000, 88000000,
-                      75000000, 82000000, 78000000, 85000000, 90000000, 87000000, 92000000, 88000000, 85000000, 79000000,
-                      76000000, 82000000, 78000000, 85000000, 88000000, 92000000, 89000000, 95000000, 87000000, 82000000
-                    ],
+                    data: dailyData.length > 0 ? dailyData.map(d => d.totalRevenue) : [0]
                   }]} 
                   type="bar" 
                   height={220} 
@@ -1895,7 +2203,7 @@ const GmvMaxProduct: React.FC = () => {
               <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
                 <div className="mb-3">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                    Tổng Chi Phí
+                    Tổng Chi Phí theo Ngày
                   </h3>
                 </div>
                 <Chart 
@@ -1925,11 +2233,10 @@ const GmvMaxProduct: React.FC = () => {
                       colors: ["transparent"],
                     },
                     xaxis: {
-                      categories: [
-                        "01/09", "02/09", "03/09", "04/09", "05/09", "06/09", "07/09", "08/09", "09/09", "10/09",
-                        "11/09", "12/09", "13/09", "14/09", "15/09", "16/09", "17/09", "18/09", "19/09", "20/09",
-                        "21/09", "22/09", "23/09", "24/09", "25/09", "26/09", "27/09", "28/09", "29/09", "30/09"
-                      ],
+                      categories: dailyData.length > 0 ? dailyData.map(d => {
+                        const date = new Date(d.date);
+                        return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+                      }) : ['01/10'],
                       axisBorder: { show: false },
                       axisTicks: { show: false },
                       labels: {
@@ -1949,16 +2256,12 @@ const GmvMaxProduct: React.FC = () => {
                     },
                     fill: { opacity: 1 },
                     tooltip: {
-                      y: { formatter: (val: number) => `₫${val.toLocaleString()}` },
+                      y: { formatter: (val: number) => formatTikTokCurrency(val) },
                     },
                   }} 
                   series={[{
                     name: "Tổng Chi Phí",
-                    data: [
-                      15000000, 18000000, 16000000, 20000000, 18000000, 22000000, 24000000, 22000000, 30000000, 28000000,
-                      25000000, 27000000, 26000000, 28000000, 30000000, 29000000, 31000000, 29000000, 28000000, 26000000,
-                      25000000, 27000000, 26000000, 28000000, 29000000, 31000000, 30000000, 32000000, 29000000, 27000000
-                    ],
+                    data: dailyData.length > 0 ? dailyData.map(d => d.totalCost) : [0]
                   }]} 
                   type="bar" 
                   height={220} 
@@ -1969,7 +2272,7 @@ const GmvMaxProduct: React.FC = () => {
               <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
                 <div className="mb-3">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                    ROI
+                    ROI theo Ngày
                   </h3>
                 </div>
                 <Chart 
@@ -1990,11 +2293,10 @@ const GmvMaxProduct: React.FC = () => {
                       width: 2,
                     },
                     xaxis: {
-                      categories: [
-                        "01/09", "02/09", "03/09", "04/09", "05/09", "06/09", "07/09", "08/09", "09/09", "10/09",
-                        "11/09", "12/09", "13/09", "14/09", "15/09", "16/09", "17/09", "18/09", "19/09", "20/09",
-                        "21/09", "22/09", "23/09", "24/09", "25/09", "26/09", "27/09", "28/09", "29/09", "30/09"
-                      ],
+                      categories: dailyData.length > 0 ? dailyData.map(d => {
+                        const date = new Date(d.date);
+                        return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+                      }) : ['01/10'],
                       axisBorder: { show: false },
                       axisTicks: { show: false },
                       labels: {
@@ -2027,11 +2329,7 @@ const GmvMaxProduct: React.FC = () => {
                   }} 
                   series={[{
                     name: "ROI",
-                    data: [
-                      3.0, 2.9, 3.0, 3.1, 3.1, 3.0, 3.0, 3.1, 3.2, 3.1,
-                      3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0,
-                      3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0
-                    ],
+                    data: dailyData.length > 0 ? dailyData.map(d => d.avgROI) : [0]
                   }]} 
                   type="area" 
                   height={220} 
@@ -2042,7 +2340,7 @@ const GmvMaxProduct: React.FC = () => {
               <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
                 <div className="mb-3">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                    CPA
+                    CPA theo Ngày
                   </h3>
                 </div>
                 <Chart 
@@ -2072,11 +2370,10 @@ const GmvMaxProduct: React.FC = () => {
                       colors: ["transparent"],
                     },
                     xaxis: {
-                      categories: [
-                        "01/09", "02/09", "03/09", "04/09", "05/09", "06/09", "07/09", "08/09", "09/09", "10/09",
-                        "11/09", "12/09", "13/09", "14/09", "15/09", "16/09", "17/09", "18/09", "19/09", "20/09",
-                        "21/09", "22/09", "23/09", "24/09", "25/09", "26/09", "27/09", "28/09", "29/09", "30/09"
-                      ],
+                      categories: dailyData.length > 0 ? dailyData.map(d => {
+                        const date = new Date(d.date);
+                        return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+                      }) : ['01/10'],
                       axisBorder: { show: false },
                       axisTicks: { show: false },
                       labels: {
@@ -2096,16 +2393,12 @@ const GmvMaxProduct: React.FC = () => {
                     },
                     fill: { opacity: 1 },
                     tooltip: {
-                      y: { formatter: (val: number) => `₫${val.toLocaleString()}` },
+                      y: { formatter: (val: number) => formatTikTokCurrency(val) },
                     },
                   }} 
                   series={[{
                     name: "CPA",
-                    data: [
-                      150000, 180000, 160000, 200000, 180000, 220000, 240000, 220000, 300000, 280000,
-                      250000, 270000, 260000, 280000, 300000, 290000, 310000, 290000, 280000, 260000,
-                      250000, 270000, 260000, 280000, 290000, 310000, 300000, 320000, 290000, 270000
-                    ],
+                    data: dailyData.length > 0 ? dailyData.map(d => d.avgCPA) : [0]
                   }]} 
                   type="bar" 
                   height={220} 

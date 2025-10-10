@@ -16,14 +16,13 @@ export default defineConfig({
   ],
   server: {
     port: 3000,
-    host: true,
-    open: true,
+    host: 'localhost',
+    open: false,
     hmr: {
       overlay: false
     }
   },
   optimizeDeps: {
-    force: true,
     include: [
       'react',
       'react-dom',

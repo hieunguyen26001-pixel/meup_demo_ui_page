@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { useTikTokApi, useTikTokAuth } from '../../hooks/useTikTokApi';
+import TikTokDatePicker from '../ui/TikTokDatePicker';
 import config from '../../config/env';
 
 const TikTokApiDemo: React.FC = () => {
@@ -171,24 +172,25 @@ const TikTokApiDemo: React.FC = () => {
             </select>
           </div>
 
-          <div>
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Date Range
             </label>
-            <div className="flex gap-2">
-              <input
-                type="date"
-                value={dateRange.start_date}
-                onChange={(e) => setDateRange(prev => ({ ...prev, start_date: e.target.value }))}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-              />
-              <input
-                type="date"
-                value={dateRange.end_date}
-                onChange={(e) => setDateRange(prev => ({ ...prev, end_date: e.target.value }))}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-              />
-            </div>
+            <TikTokDatePicker
+              selectsRange={true}
+              startDate={dateRange.start_date ? new Date(dateRange.start_date) : undefined}
+              endDate={dateRange.end_date ? new Date(dateRange.end_date) : undefined}
+              onChange={(dates) => {
+                if (Array.isArray(dates) && dates.length === 2) {
+                  setDateRange({
+                    start_date: dates[0].toISOString().split('T')[0],
+                    end_date: dates[1].toISOString().split('T')[0]
+                  });
+                }
+              }}
+              placeholder="Chọn khoảng thời gian"
+              className="w-full"
+            />
           </div>
         </div>
 

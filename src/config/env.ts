@@ -16,6 +16,9 @@ export const config = {
   partnerApiUrl: 'https://business-api.tiktok.com/open_api/v1.3',
   businessApiUrl: 'https://business-api.tiktok.com/open_api/v1.3',
   
+  // Backend endpoint
+  backendEndpoint: import.meta.env.VITE_BACKEND_ENDPOINT || 'http://localhost:9004',
+  
   // Development settings
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
