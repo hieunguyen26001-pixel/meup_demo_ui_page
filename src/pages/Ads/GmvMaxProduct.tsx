@@ -4,6 +4,23 @@ import PageMeta from "../../components/common/PageMeta";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 
+// Helper function to format currency
+const formatCurrency = (value: string | number): string => {
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numValue)) return '₫0';
+  return `₫${numValue.toLocaleString('vi-VN')}`;
+};
+
+// Helper function to format date
+const formatDate = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN');
+  } catch {
+    return dateString;
+  }
+};
+
 interface CampaignData {
   campaign_id: string;
   campaign_name: string;
@@ -945,7 +962,7 @@ const GmvMaxProduct: React.FC = () => {
                           <tr key={campaign.campaign_id} className="border-b border-gray-200 dark:border-gray-700">
                             <td className="px-3 py-2">
                               <button 
-                                onClick={() => navigate(`/meup/campaign-video/${campaign.campaign_id}`)}
+                                 onClick={() => navigate(`campaign-video/${campaign.campaign_id}`)}
                                 className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-left"
                               >
                                 {campaign.campaign_name}
@@ -1723,7 +1740,7 @@ const GmvMaxProduct: React.FC = () => {
                         <td className="px-4 py-4">
                           <div>
                             <button 
-                              onClick={() => navigate(`/meup/campaign-video/${campaign.campaign_id}`)}
+                                 onClick={() => navigate(`campaign-video/${campaign.campaign_id}`)}
                               className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-left"
                             >
                               {campaign.campaign_name}

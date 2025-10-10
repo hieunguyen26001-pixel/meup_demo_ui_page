@@ -60,13 +60,6 @@ const navItems: NavItem[] = [
               { name: "Phân tích Hủy/Trả/Hoàn tiền", path: "aftersales-analytics", pro: false, icon: <DollarLineIcon /> }
             ],
           },
-          {
-            icon: <ListIcon />,
-            name: "Demo",
-            subItems: [
-              { name: "TikTok API Demo", path: "tiktok-api-demo", pro: false, icon: <VideoIcon /> }
-            ],
-          },
 ];
 
 const othersItems: NavItem[] = [];
@@ -75,7 +68,7 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
-  const [openSubmenus, setOpenSubmenus] = useState<Set<string>>(new Set(["main-0", "main-1", "main-2", "main-3"]));
+  const [openSubmenus, setOpenSubmenus] = useState<Set<string>>(new Set(["main-0", "main-1", "main-2"]));
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
     {}
   );
