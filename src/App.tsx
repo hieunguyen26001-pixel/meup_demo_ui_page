@@ -22,7 +22,7 @@ import AdsOverview from "./pages/Ads/AdsOverview";
 import GmvMaxProduct from "./pages/Ads/GmvMaxProduct";
 import GmvMaxLive from "./pages/Ads/GmvMaxLive";
 import CampaignVideoDetail from "./pages/Ads/CampaignVideoDetail";
-import VideoManagement from "./pages/Management/VideoManagement";
+import VideoManagement from "./pages/VideoManagement";
 import BookingManagement from "./pages/BookingManagement";
 import StaffList from "./pages/Management/StaffList";
 import Orders from "./pages/Store/Orders";
