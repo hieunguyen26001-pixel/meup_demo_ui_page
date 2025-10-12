@@ -71,7 +71,7 @@ const VolumeChart: React.FC = () => {
   const chartSeries = data.map(item => item.percentage);
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-white/[0.03]">
       <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
         TỈ TRỌNG KHỐI LƯỢNG CÔNG VIỆC THEO NHÂN SỰ
       </h3>

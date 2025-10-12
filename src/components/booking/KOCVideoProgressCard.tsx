@@ -37,7 +37,7 @@ const KOCVideoProgressCard: React.FC = () => {
   }, [percentage]);
 
   return (
-    <div className={`rounded-2xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 px-4 sm:px-6 py-4 dark:border-green-700 dark:from-green-900/20 dark:to-emerald-900/20 h-full transition-all duration-1000 ease-out ${
+    <div className={`rounded-2xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 px-3 sm:px-4 py-3 dark:border-green-700 dark:from-green-900/20 dark:to-emerald-900/20 h-full transition-all duration-1000 ease-out ${
       isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
     }`}>
       <div className="flex items-center gap-3 mb-4">

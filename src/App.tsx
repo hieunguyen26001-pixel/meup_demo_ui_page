@@ -17,7 +17,6 @@ import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
-import Home from "./pages/Dashboard/Home";
 import AdsOverview from "./pages/Ads/AdsOverview";
 import GmvMaxProduct from "./pages/Ads/GmvMaxProduct";
 import GmvMaxLive from "./pages/Ads/GmvMaxLive";
@@ -25,6 +24,8 @@ import CampaignVideoDetail from "./pages/Ads/CampaignVideoDetail";
 import VideoManagement from "./pages/VideoManagement";
 import BookingManagement from "./pages/BookingManagement";
 import StaffList from "./pages/Management/StaffList";
+import CreatorAnalytics from "./pages/Creator/CreatorAnalytics";
+import CreatorCommission from "./pages/Creator/CreatorCommission";
 import Orders from "./pages/Store/Orders";
 import ProductManagement from "./pages/Store/ProductManagement";
 import OrdersFulfillment from "./pages/Store/OrdersFulfillment";
@@ -69,6 +70,10 @@ export default function App() {
             <Route path="gmv-max-product" element={<GmvMaxProduct />} />
             <Route path="gmv-max-live" element={<GmvMaxLive />} />
             <Route path="campaign-video/:campaignId" element={<CampaignVideoDetail />} />
+
+            {/* Creator */}
+            <Route path="creator-analytics" element={<CreatorAnalytics />} />
+            <Route path="creator-commission" element={<CreatorCommission />} />
 
             {/* Management */}
             <Route path="video-management" element={<VideoManagement />} />

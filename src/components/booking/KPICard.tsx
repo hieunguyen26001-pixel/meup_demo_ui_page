@@ -30,7 +30,7 @@ const KPICard: React.FC<KPICardProps> = ({ title, value, icon: Icon, color }) =>
   const config = colorConfig[color];
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className={`flex items-center justify-center w-10 h-10 ${config.iconBg} rounded-xl mb-3`}>
         <Icon className={`${config.iconColor} size-5`} />
       </div>

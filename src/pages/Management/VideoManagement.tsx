@@ -77,7 +77,7 @@ const VideoManagement: React.FC = () => {
     <>
       <PageMeta title="Quản lí Video - meup" />
       
-      <div className="mx-auto max-w-screen-2xl p-4">
+      <div className="w-full px-2 sm:px-4 lg:px-6 xl:px-8">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-4">

@@ -132,7 +132,7 @@ const KOCVideoChart: React.FC = () => {
   ];
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-white/[0.03]">
       <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-3">
         KOC LÀM VIDEO THEO NGÀY
       </h3>

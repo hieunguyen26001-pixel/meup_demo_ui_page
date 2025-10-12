@@ -30,7 +30,7 @@ const BookingDashboard: React.FC = () => {
     <>
       <PageMeta title="Quản lý Booking Code - meup" description="Dashboard tổng quan và quản lý các booking code KOC" />
       
-      <div className="mx-auto max-w-screen-2xl p-4">
+      <div className="w-full px-2 sm:px-4 lg:px-6 xl:px-8">
         {/* Date Range Filter */}
         <div className="mb-4 sm:mb-6 lg:mb-4 xl:mb-6">
           <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 lg:p-4 xl:p-6 dark:border-gray-800 dark:bg-white/[0.03]">

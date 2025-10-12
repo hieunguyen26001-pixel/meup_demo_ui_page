@@ -438,7 +438,7 @@ const AdsOverview: React.FC = () => {
     <>
       <PageMeta title="Tổng quan Quảng cáo - meup" description="Tổng quan hiệu suất quảng cáo với datepicker để lọc dữ liệu theo khoảng thời gian" />
       
-      <div className="mx-auto max-w-screen-2xl p-4">
+      <div className="w-full px-2 sm:px-4 lg:px-6 xl:px-8">
         {/* Date Range Filter */}
         <div className="mb-6">
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">

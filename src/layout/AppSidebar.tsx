@@ -55,7 +55,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Tiến độ sản xuất video", path: "video-management", pro: false, icon: <VideoIcon /> },
       { name: "Quản lý hiệu suất Booking", path: "booking-management", pro: false, icon: <CalenderIcon /> },
-      { name: "Phân tích hiệu suất nhân sự", path: "staff-list", pro: false, icon: <UserIcon /> }
+      { name: "Danh sách nhân sự", path: "staff-list", pro: false, icon: <UserIcon /> }
     ],
   },
   {
