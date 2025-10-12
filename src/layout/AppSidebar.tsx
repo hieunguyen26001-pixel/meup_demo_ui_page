@@ -42,12 +42,20 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    icon: <UserCircleIcon />,
-    name: "Quản lí",
+    icon: <UserIcon />,
+    name: "Creator",
     subItems: [
-      { name: "Quản lí video", path: "video-management", pro: false, icon: <VideoIcon /> },
-      { name: "Quản lí Booking", path: "booking-management", pro: false, icon: <CalenderIcon /> },
-      { name: "Danh sách nhân sự", path: "staff-list", pro: false, icon: <UserIcon /> }
+      { name: "Thống kê nguồn doanh thu", path: "creator-analytics", pro: false, icon: <PieChartIcon /> },
+      { name: "Thống kê hoa hồng ADS và Tự Nhiên", path: "creator-commission", pro: false, icon: <DollarLineIcon /> }
+    ],
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "Quản trị hiệu suất",
+    subItems: [
+      { name: "Tiến độ sản xuất video", path: "video-management", pro: false, icon: <VideoIcon /> },
+      { name: "Quản lý hiệu suất Booking", path: "booking-management", pro: false, icon: <CalenderIcon /> },
+      { name: "Phân tích hiệu suất nhân sự", path: "staff-list", pro: false, icon: <UserIcon /> }
     ],
   },
   {
@@ -69,7 +77,7 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
-  const [openSubmenus, setOpenSubmenus] = useState<Set<string>>(new Set(["main-0", "main-1", "main-2"]));
+  const [openSubmenus, setOpenSubmenus] = useState<Set<string>>(new Set());
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
     {}
   );
@@ -110,8 +118,8 @@ const AppSidebar: React.FC = () => {
     });
 
     if (!submenuMatched) {
-      // Keep default open menus
-      setOpenSubmenus(new Set(["main-0", "main-1", "main-2"]));
+      // Keep all menus closed by default
+      setOpenSubmenus(new Set());
     }
   }, [location, isActive]);
 
@@ -282,7 +290,7 @@ const AppSidebar: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`flex py-4 ${
+        className={`flex py-2 ${
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
@@ -291,22 +299,22 @@ const AppSidebar: React.FC = () => {
             <>
               <img
                 className="dark:hidden"
-                src="images/logo/logo.svg"
+                src="images/logo/meup_logo.png"
                 alt="Logo"
                 width={150}
-                height={40}
+                height={32}
               />
               <img
                 className="hidden dark:block"
-                src="./images/logo/logo-dark.svg"
+                src="./images/logo/meup_logo.png"
                 alt="Logo"
                 width={150}
-                height={40}
+                height={32}
               />
             </>
           ) : (
             <img
-              src="./images/logo/logo-icon.svg"
+              src="./images/logo/meup_logo.png"
               alt="Logo"
               width={32}
               height={32}
