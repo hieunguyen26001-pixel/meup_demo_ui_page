@@ -68,12 +68,95 @@ export const getVideoAnalyticsData = (): VideoAnalyticsResponse => {
 };
 
 /**
+ * Get video data from TikTok API
+ * @param tiktokUrl - TikTok video URL
+ * @returns Promise<VideoAnalyticsData>
+ */
+export const getTikTokVideoData = async (tiktokUrl: string): Promise<VideoAnalyticsData | null> => {
+  try {
+    const apiUrl = `https://tikwm.com/api/?url=${encodeURIComponent(tiktokUrl)}`;
+    console.log('Fetching TikTok data from:', apiUrl);
+    
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    
+    console.log('TikTok API Response:', data);
+    
+    if (data.code === 0 && data.data) {
+      // Map TikTok API response to our VideoAnalyticsData format
+      const mappedData = {
+        tt_account_name: data.data.author?.nickname || "Unknown Creator",
+        tt_account_avatar_icon: data.data.author?.avatar || "",
+        item_id: data.data.id || "",
+        material_name: data.data.title || "TikTok Video",
+        shop_content_type: "video",
+        material_video_info_poster_url: data.data.cover || "",
+        material_video_info_video_id: data.data.id || "",
+        material_video_info_play_url: data.data.play || tiktokUrl, // Use direct play URL from API
+        material_authorized_type: "1",
+        item_authorization_type: "1",
+        item_public_status: "1",
+        item_delivery_status: "3", // Active
+        item_delivery_secondary_status: "0",
+        authorize_remove_time: "",
+        item_authorization_priority: "1",
+        unavailable_reason_enum: "0",
+        video_bi_appeal_info: "",
+        is_gmv_top_ten_percent: "0",
+        onsite_roi2_shopping_sku: "0",
+        onsite_roi2_shopping_value: "0",
+        onsite_shopping_sku_cvr: "0",
+        play_2s_rate: "0",
+        play_6s_rate: "0",
+        play_first_quartile_rate: "0",
+        play_midpoint_rate: "0",
+        play_third_quartile_rate: "0",
+        play_over_rate: "0",
+        mixed_real_cost: "0",
+        mixed_real_cost_per_onsite_roi2_shopping_sku: "0",
+        onsite_mixed_real_roi2_shopping: "0",
+        roi2_show_cnt: data.data.play_count?.toString() || "0",
+        roi2_click_cnt: data.data.share_count?.toString() || "0",
+        roi2_ctr: "0"
+      };
+      
+      console.log('Mapped TikTok Data:', mappedData);
+      return mappedData;
+    }
+    
+    console.log('TikTok API failed:', data);
+    return null;
+  } catch (error) {
+    console.error('Error fetching TikTok video data:', error);
+    return null;
+  }
+};
+
+/**
  * Get video data array
  * @returns VideoAnalyticsData[]
  */
 export const getVideoData = (): VideoAnalyticsData[] => {
   const data = (videoDataJson as any).table || [];
-  return data.slice(0, 20); // Limit to 20 videos for better performance
+  return data.slice(0, 1); // Limit to 1 video for demo
+};
+
+/**
+ * Update video data with TikTok API data
+ * @param tiktokUrl - TikTok video URL
+ * @returns Promise<VideoAnalyticsData[]>
+ */
+export const updateVideoDataWithTikTok = async (tiktokUrl: string): Promise<VideoAnalyticsData[]> => {
+  const tiktokData = await getTikTokVideoData(tiktokUrl);
+  
+  if (tiktokData) {
+    // Return array with TikTok data
+    return [tiktokData];
+  }
+  
+  // Fallback to original data if API fails
+  const data = (videoDataJson as any).table || [];
+  return data.slice(0, 1);
 };
 
 /**

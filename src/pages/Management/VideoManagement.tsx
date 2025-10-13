@@ -5,6 +5,8 @@ import Chart from "react-apexcharts";
 const VideoManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   // Sample data for video management
   const videoData = [
@@ -16,7 +18,8 @@ const VideoManagement: React.FC = () => {
       status: "active",
       views: 15000,
       uploadDate: "2024-01-15",
-      category: "Sản phẩm"
+      category: "Sản phẩm",
+      videoUrl: "/videos/download.mp4"
     },
     {
       id: "2", 
@@ -26,7 +29,8 @@ const VideoManagement: React.FC = () => {
       status: "pending",
       views: 8500,
       uploadDate: "2024-01-14",
-      category: "Hướng dẫn"
+      category: "Hướng dẫn",
+      videoUrl: "/videos/download (1).mp4"
     },
     {
       id: "3",
@@ -36,7 +40,41 @@ const VideoManagement: React.FC = () => {
       status: "inactive",
       views: 22000,
       uploadDate: "2024-01-13",
-      category: "Review"
+      category: "Review",
+      videoUrl: "/videos/download (2).mp4"
+    },
+    {
+      id: "4",
+      title: "Video Demo Sản Phẩm Mới",
+      creator: "Creator 4",
+      duration: "01:20",
+      status: "active",
+      views: 18500,
+      uploadDate: "2024-01-16",
+      category: "Demo",
+      videoUrl: "/videos/download.mp4"
+    },
+    {
+      id: "5",
+      title: "Video Hướng Dẫn Chi Tiết",
+      creator: "Creator 5",
+      duration: "03:45",
+      status: "active",
+      views: 12500,
+      uploadDate: "2024-01-17",
+      category: "Hướng dẫn",
+      videoUrl: "/videos/download (1).mp4"
+    },
+    {
+      id: "6",
+      title: "Video Review Tổng Quan",
+      creator: "Creator 6",
+      duration: "02:30",
+      status: "pending",
+      views: 9800,
+      uploadDate: "2024-01-18",
+      category: "Review",
+      videoUrl: "/videos/download (2).mp4"
     }
   ];
 
@@ -71,6 +109,16 @@ const VideoManagement: React.FC = () => {
       default:
         return "Không xác định";
     }
+  };
+
+  const handlePlayVideo = (video: any) => {
+    setSelectedVideo(video);
+    setShowVideoModal(true);
+  };
+
+  const closeVideoModal = () => {
+    setShowVideoModal(false);
+    setSelectedVideo(null);
   };
 
   return (
@@ -333,6 +381,12 @@ const VideoManagement: React.FC = () => {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => handlePlayVideo(video)}
+                            className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                          >
+                            ▶️ Play
+                          </button>
                           <button className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                             Chỉnh sửa
                           </button>
@@ -349,6 +403,61 @@ const VideoManagement: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Video Modal */}
+      {showVideoModal && selectedVideo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                {selectedVideo.title}
+              </h3>
+              <button
+                onClick={closeVideoModal}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="p-4">
+              <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                <video
+                  src={selectedVideo.videoUrl}
+                  controls
+                  className="w-full h-full"
+                  autoPlay
+                >
+                  Trình duyệt của bạn không hỗ trợ video.
+                </video>
+              </div>
+              
+              <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-gray-600 dark:text-gray-400">Creator:</span>
+                  <span className="ml-2 text-gray-800 dark:text-white/90">{selectedVideo.creator}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600 dark:text-gray-400">Thời lượng:</span>
+                  <span className="ml-2 text-gray-800 dark:text-white/90">{selectedVideo.duration}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600 dark:text-gray-400">Lượt xem:</span>
+                  <span className="ml-2 text-gray-800 dark:text-white/90">{selectedVideo.views.toLocaleString()}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600 dark:text-gray-400">Ngày upload:</span>
+                  <span className="ml-2 text-gray-800 dark:text-white/90">
+                    {new Date(selectedVideo.uploadDate).toLocaleDateString('vi-VN')}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

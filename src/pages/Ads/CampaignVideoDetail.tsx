@@ -1,13 +1,11 @@
-import React, { useState, useMemo, lazy, Suspense } from "react";
+import React, { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import Chart from "react-apexcharts";
 import DateRangePicker from "../../components/ui/DateRangePicker";
 import {
-  getVideoData,
   calculateVideoMetrics,
   formatCurrency,
-  formatPercentage,
   formatNumber,
   formatDate,
   getDeliveryStatusInfo,
@@ -18,10 +16,8 @@ import {
   getCostEfficiencyAnalysis,
   getCreatorPerformanceAnalysis,
   getTimeBasedAnalysis,
-  getCorrelationAnalysis,
   type VideoAnalyticsData,
 } from "../../data/video-analytics";
-import { ApexOptions } from "apexcharts";
 
 interface CampaignInfo {
   campaign_id: string;
@@ -102,13 +98,6 @@ interface CampaignData {
   ad_info: AdInfo;
 }
 
-// Loading component
-const LoadingSpinner = () => (
-  <div className="flex items-center justify-center p-8">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-  </div>
-);
-
 const CampaignVideoDetail: React.FC = () => {
   const { campaignId } = useParams<{ campaignId: string }>();
   const navigate = useNavigate();
@@ -135,13 +124,13 @@ const CampaignVideoDetail: React.FC = () => {
   const campaignData: CampaignData = {
     campaign_info: {
       campaign_id: "1844659997202449",
-      campaign_name: "SPU - LF02",
+      campaign_name: "SPU - Quần Định Hình",
       budget_mode: -1,
       shop_automation_type: 2,
       opt_status: 0,
     },
     ad_info: {
-      name: "Nhóm quảng cáo_LAFIT - Số 1 Gen Nịt Bụng_2025-09-30 10:52:52",
+      name: "Nhóm quảng cáo_Quần Định Hình Cao Cấp_2025-09-30 10:52:52",
       campaign_id: "1844659997202449",
       ad_id: "1844659998997505",
       inventory_flow_type: 0,
@@ -205,8 +194,117 @@ const CampaignVideoDetail: React.FC = () => {
     },
   };
 
-  // Memoize video data and analytics calculations
-  const videoData = useMemo(() => getVideoData(), []);
+  // Sample video data for the 3 videos in public/videos/
+  const sampleVideoData = useMemo(() => [
+    {
+      tt_account_name: "Creator Demo 1",
+      tt_account_avatar_icon: "/images/user/user-01.jpg",
+      item_id: "sample_video_001",
+      material_name: "Video Mẫu 1 - Quần định hình cao cấp",
+      shop_content_type: "1",
+      material_video_info_poster_url: "/images/product/product-01.jpg",
+      material_video_info_video_id: "video_001",
+      material_video_info_play_url: "/videos/download.mp4",
+      material_authorized_type: "1",
+      item_authorization_type: "1",
+      item_public_status: "1",
+      item_delivery_status: "1",
+      item_delivery_secondary_status: "0",
+      authorize_remove_time: "",
+      item_authorization_priority: "1",
+      unavailable_reason_enum: "",
+      video_bi_appeal_info: "",
+      is_gmv_top_ten_percent: "1",
+      onsite_roi2_shopping_sku: "125",
+      onsite_roi2_shopping_value: "4000000",
+      onsite_shopping_sku_cvr: "0.14",
+      play_2s_rate: "0.85",
+      play_6s_rate: "0.72",
+      play_first_quartile_rate: "0.68",
+      play_midpoint_rate: "0.55",
+      play_third_quartile_rate: "0.42",
+      play_over_rate: "0.38",
+      mixed_real_cost: "2500000",
+      mixed_real_cost_per_onsite_roi2_shopping_sku: "20000",
+      onsite_mixed_real_roi2_shopping: "3.2",
+      roi2_show_cnt: "125000",
+      roi2_click_cnt: "8750",
+      roi2_ctr: "7.0"
+    },
+    {
+      tt_account_name: "Creator Demo 2",
+      tt_account_avatar_icon: "/images/user/user-02.jpg",
+      item_id: "sample_video_002", 
+      material_name: "Video Mẫu 2 - Review quần định hình",
+      shop_content_type: "2",
+      material_video_info_poster_url: "/images/product/product-02.jpg",
+      material_video_info_video_id: "video_002",
+      material_video_info_play_url: "/videos/download (1).mp4",
+      material_authorized_type: "1",
+      item_authorization_type: "1",
+      item_public_status: "1",
+      item_delivery_status: "1",
+      item_delivery_secondary_status: "0",
+      authorize_remove_time: "",
+      item_authorization_priority: "1",
+      unavailable_reason_enum: "",
+      video_bi_appeal_info: "",
+      is_gmv_top_ten_percent: "0",
+      onsite_roi2_shopping_sku: "98",
+      onsite_roi2_shopping_value: "3120000",
+      onsite_shopping_sku_cvr: "0.12",
+      play_2s_rate: "0.82",
+      play_6s_rate: "0.69",
+      play_first_quartile_rate: "0.65",
+      play_midpoint_rate: "0.52",
+      play_third_quartile_rate: "0.39",
+      play_over_rate: "0.35",
+      mixed_real_cost: "1950000",
+      mixed_real_cost_per_onsite_roi2_shopping_sku: "19898",
+      onsite_mixed_real_roi2_shopping: "2.8",
+      roi2_show_cnt: "98000",
+      roi2_click_cnt: "6860",
+      roi2_ctr: "7.0"
+    },
+    {
+      tt_account_name: "Creator Demo 3",
+      tt_account_avatar_icon: "/images/user/user-03.jpg",
+      item_id: "sample_video_003",
+      material_name: "Video Mẫu 3 - Hướng dẫn mặc quần định hình",
+      shop_content_type: "3",
+      material_video_info_poster_url: "/images/product/product-03.jpg",
+      material_video_info_video_id: "video_003",
+      material_video_info_play_url: "/videos/download (2).mp4",
+      material_authorized_type: "1",
+      item_authorization_type: "1",
+      item_public_status: "1",
+      item_delivery_status: "1",
+      item_delivery_secondary_status: "0",
+      authorize_remove_time: "",
+      item_authorization_priority: "1",
+      unavailable_reason_enum: "",
+      video_bi_appeal_info: "",
+      is_gmv_top_ten_percent: "1",
+      onsite_roi2_shopping_sku: "156",
+      onsite_roi2_shopping_value: "5000000",
+      onsite_shopping_sku_cvr: "0.16",
+      play_2s_rate: "0.88",
+      play_6s_rate: "0.75",
+      play_first_quartile_rate: "0.71",
+      play_midpoint_rate: "0.58",
+      play_third_quartile_rate: "0.45",
+      play_over_rate: "0.41",
+      mixed_real_cost: "3200000",
+      mixed_real_cost_per_onsite_roi2_shopping_sku: "20513",
+      onsite_mixed_real_roi2_shopping: "3.5",
+      roi2_show_cnt: "156000",
+      roi2_click_cnt: "10920",
+      roi2_ctr: "7.0"
+    }
+  ], []);
+
+  // Use sample video data instead of getVideoData()
+  const videoData = useMemo(() => sampleVideoData, [sampleVideoData]);
   
   const analyticsData = useMemo(() => ({
     performanceDistribution: getPerformanceDistribution(videoData),
@@ -264,14 +362,14 @@ const CampaignVideoDetail: React.FC = () => {
 
   return (
     <>
-      <PageMeta title={`Chi tiết Video - Chiến dịch ${campaignId} - meup`} />
+      <PageMeta title={`Chi tiết Video - Chiến dịch ${campaignId} - meup`} description="Phân tích hiệu suất các video quảng cáo trong chiến dịch" />
 
       <div className="mx-auto max-w-screen-2xl p-4">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-4">
             <button
-              onClick={() => navigate("/meup/gmv-max-product")}
+              onClick={() => navigate("/gmv-max-product")}
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
               ← Quay lại
@@ -501,7 +599,7 @@ const CampaignVideoDetail: React.FC = () => {
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-gray-800 dark:text-white/90">
-                  {campaignData.ad_info.custom_anchor_videos.length}
+                  {videoData.length}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   video
@@ -1083,7 +1181,7 @@ const CampaignVideoDetail: React.FC = () => {
                   legend: { position: "bottom" },
                   dataLabels: {
                     enabled: true,
-                    formatter: (val) => `${val.toFixed(1)}%`,
+                    formatter: (val) => `${(val as number).toFixed(1)}%`,
                   },
                   plotOptions: {
                     pie: {
@@ -1158,7 +1256,7 @@ const CampaignVideoDetail: React.FC = () => {
                   colors: ["#3B82F6"],
                   dataLabels: {
                     enabled: true,
-                    formatter: (val) => `${val.toFixed(2)}x`,
+                    formatter: (val) => `${(val as number).toFixed(2)}x`,
                   },
                   plotOptions: {
                     bar: {
@@ -1193,7 +1291,7 @@ const CampaignVideoDetail: React.FC = () => {
                   legend: { position: "bottom" },
                   dataLabels: {
                     enabled: true,
-                    formatter: (val) => `${val.toFixed(1)}%`,
+                    formatter: (val) => `${(val as number).toFixed(1)}%`,
                   },
                   plotOptions: {
                     pie: {
@@ -1218,46 +1316,6 @@ const CampaignVideoDetail: React.FC = () => {
             </div>
           </div>
 
-          {/* Video Retention Curve */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
-              Đường Cong Retention Video
-            </h3>
-            <Chart
-              options={{
-                chart: { type: "line" },
-                xaxis: {
-                  categories: analyticsData.timeBasedAnalysis.retentionCurve.map(
-                    (r) => r.stage
-                  ),
-                },
-                colors: ["#8B5CF6"],
-                dataLabels: {
-                  enabled: true,
-                  formatter: (val) => `${val.toFixed(1)}%`,
-                },
-                stroke: { curve: "smooth", width: 3 },
-                markers: { size: 6 },
-                title: {
-                  text: "Tỷ lệ người xem từ 25% đến 100% video",
-                  style: { fontSize: "14px" },
-                },
-                yaxis: {
-                  title: { text: "Tỷ lệ (%)" },
-                  min: 0,
-                  max: 100,
-                },
-              }}
-              series={[
-                {
-                  name: "Retention Rate",
-                  data: analyticsData.timeBasedAnalysis.retentionCurve.map((r) => r.rate),
-                },
-              ]}
-              type="line"
-              height={300}
-            />
-          </div>
         </div>
 
         {/* Video Table */}
@@ -1280,19 +1338,6 @@ const CampaignVideoDetail: React.FC = () => {
                       >
                         Tên Video
                         {sortField === "material_name" && (
-                          <span className="text-blue-500">
-                            {sortDirection === "asc" ? "↑" : "↓"}
-                          </span>
-                        )}
-                      </button>
-                    </th>
-                    <th className="px-4 py-3 whitespace-nowrap">
-                      <button
-                        onClick={() => handleSort("shop_content_type")}
-                        className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
-                      >
-                        Loại
-                        {sortField === "shop_content_type" && (
                           <span className="text-blue-500">
                             {sortDirection === "asc" ? "↑" : "↓"}
                           </span>
@@ -1383,7 +1428,7 @@ const CampaignVideoDetail: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedData.map((video, index) => (
+                  {paginatedData.map((video) => (
                     <tr
                       key={video.item_id}
                       className="bg-white border-b dark:bg-gray-900 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -1406,35 +1451,6 @@ const CampaignVideoDetail: React.FC = () => {
                               {video.tt_account_name}
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              getContentTypeInfo(video.shop_content_type)
-                                .className
-                            }`}
-                          >
-                            {getContentTypeInfo(video.shop_content_type).label}
-                          </span>
-                          {getTopTenPercentInfo(
-                            video.is_gmv_top_ten_percent
-                          ) && (
-                            <span
-                              className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                getTopTenPercentInfo(
-                                  video.is_gmv_top_ten_percent
-                                )!.className
-                              }`}
-                            >
-                              {
-                                getTopTenPercentInfo(
-                                  video.is_gmv_top_ten_percent
-                                )!.label
-                              }
-                            </span>
-                          )}
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -1608,14 +1624,21 @@ const CampaignVideoDetail: React.FC = () => {
 
       {/* Video Modal */}
       {isModalOpen && selectedVideo && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="relative max-w-4xl w-full">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[999999] p-4"
+          onClick={handleCloseModal}
+        >
+          <div 
+            className="relative max-w-6xl w-full max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
             <button
               onClick={handleCloseModal}
-              className="absolute -top-10 right-0 text-white hover:text-gray-300 z-10"
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 z-[1000000] bg-black bg-opacity-50 rounded-full p-2 transition-all duration-200 hover:bg-opacity-70"
             >
               <svg
-                className="w-8 h-8"
+                className="w-6 h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -1629,16 +1652,43 @@ const CampaignVideoDetail: React.FC = () => {
               </svg>
             </button>
 
-            <div className="aspect-video bg-black rounded-lg overflow-hidden">
+            {/* Video Container */}
+            <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
               <video
                 src={selectedVideo.material_video_info_play_url}
                 controls
                 className="w-full h-full"
                 poster={selectedVideo.material_video_info_poster_url}
                 autoPlay
+                preload="metadata"
               >
                 Trình duyệt của bạn không hỗ trợ video.
               </video>
+            </div>
+
+            {/* Video Info */}
+            <div className="mt-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-lg">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+                {selectedVideo.material_name}
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-500 dark:text-gray-400">Creator:</span>
+                  <p className="font-medium text-gray-800 dark:text-white">{selectedVideo.tt_account_name}</p>
+                </div>
+                <div>
+                  <span className="text-gray-500 dark:text-gray-400">Hiển thị:</span>
+                  <p className="font-medium text-gray-800 dark:text-white">{formatNumber(parseInt(selectedVideo.roi2_show_cnt))}</p>
+                </div>
+                <div>
+                  <span className="text-gray-500 dark:text-gray-400">Click:</span>
+                  <p className="font-medium text-gray-800 dark:text-white">{formatNumber(parseInt(selectedVideo.roi2_click_cnt))}</p>
+                </div>
+                <div>
+                  <span className="text-gray-500 dark:text-gray-400">CTR:</span>
+                  <p className="font-medium text-gray-800 dark:text-white">{parseFloat(selectedVideo.roi2_ctr).toFixed(1)}%</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

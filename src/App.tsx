@@ -69,7 +69,7 @@ export default function App() {
             <Route path="ads-overview" element={<AdsOverview />} />
             <Route path="gmv-max-product" element={<GmvMaxProduct />} />
             <Route path="gmv-max-live" element={<GmvMaxLive />} />
-            <Route path="campaign-video/:campaignId" element={<CampaignVideoDetail />} />
+            <Route path="gmv-max-product/campaign-video/:campaignId" element={<CampaignVideoDetail />} />
 
             {/* Creator */}
             <Route path="creator-analytics" element={<CreatorAnalytics />} />

@@ -476,21 +476,6 @@ const GmvMaxProduct: React.FC = () => {
   // Sample data from your JSON
   const sampleData: CampaignData[] = [
     {
-      campaign_id: "1844659997202449",
-      campaign_name: "SPU - LF02",
-      campaign_budget: "9000000",
-      campaign_primary_status: "delivery_ok",
-      template_ad_roas_bid: "6.30",
-      cost: "71181",
-      onsite_roi2_shopping_sku: "3",
-      cost_per_onsite_roi2_shopping_sku: "23727",
-      onsite_roi2_shopping_value: "296999",
-      onsite_roi2_shopping: "4.17",
-      billed_cost: "14039",
-      template_ad_start_time: "2025-09-30 10:52:52",
-      template_ad_end_time: "2035-09-28 10:52:52"
-    },
-    {
       campaign_id: "1842679658453105",
       campaign_name: "LAFIT - Số 1 Gen Nịt Bụng - 08/09",
       campaign_budget: "9000000",
@@ -504,81 +489,6 @@ const GmvMaxProduct: React.FC = () => {
       billed_cost: "4950",
       template_ad_start_time: "2025-09-08 14:23:23",
       template_ad_end_time: "2035-09-06 14:23:23"
-    },
-    {
-      campaign_id: "1843396732239954",
-      campaign_name: "COMBO 2",
-      campaign_budget: "30000000",
-      campaign_primary_status: "disable",
-      template_ad_roas_bid: "3.10",
-      cost: "347",
-      onsite_roi2_shopping_sku: "0",
-      cost_per_onsite_roi2_shopping_sku: "0",
-      onsite_roi2_shopping_value: "0",
-      onsite_roi2_shopping: "0.00",
-      billed_cost: "0",
-      template_ad_start_time: "2025-09-16 12:21:14",
-      template_ad_end_time: "2035-09-14 12:21:14"
-    },
-    {
-      campaign_id: "1845018809498770",
-      campaign_name: "SPU - LF04",
-      campaign_budget: "30000000",
-      campaign_primary_status: "roi2_mutex_exclusive_product",
-      template_ad_roas_bid: "2.70",
-      cost: "294",
-      onsite_roi2_shopping_sku: "0",
-      cost_per_onsite_roi2_shopping_sku: "0",
-      onsite_roi2_shopping_value: "0",
-      onsite_roi2_shopping: "0.00",
-      billed_cost: "103",
-      template_ad_start_time: "2025-10-04 10:01:43",
-      template_ad_end_time: "2035-10-02 10:01:43"
-    },
-    {
-      campaign_id: "1845019610772658",
-      campaign_name: "SPU - LF06",
-      campaign_budget: "30000000",
-      campaign_primary_status: "disable",
-      template_ad_roas_bid: "2.70",
-      cost: "260",
-      onsite_roi2_shopping_sku: "0",
-      cost_per_onsite_roi2_shopping_sku: "0",
-      onsite_roi2_shopping_value: "0",
-      onsite_roi2_shopping: "0.00",
-      billed_cost: "50",
-      template_ad_start_time: "2025-10-04 10:13:29",
-      template_ad_end_time: "2035-10-02 10:13:29"
-    },
-    {
-      campaign_id: "1845020000000001",
-      campaign_name: "Campaign Test - Paused",
-      campaign_budget: "15000000",
-      campaign_primary_status: "disable",
-      template_ad_roas_bid: "4.50",
-      cost: "125000",
-      onsite_roi2_shopping_sku: "8",
-      cost_per_onsite_roi2_shopping_sku: "15625",
-      onsite_roi2_shopping_value: "450000",
-      onsite_roi2_shopping: "3.60",
-      billed_cost: "125000",
-      template_ad_start_time: "2025-09-15 09:00:00",
-      template_ad_end_time: "2035-09-13 09:00:00"
-    },
-    {
-      campaign_id: "1845020000000002",
-      campaign_name: "Campaign Test - Conflict",
-      campaign_budget: "20000000",
-      campaign_primary_status: "roi2_mutex_exclusive_product",
-      template_ad_roas_bid: "5.20",
-      cost: "85000",
-      onsite_roi2_shopping_sku: "5",
-      cost_per_onsite_roi2_shopping_sku: "17000",
-      onsite_roi2_shopping_value: "320000",
-      onsite_roi2_shopping: "3.76",
-      billed_cost: "85000",
-      template_ad_start_time: "2025-09-20 14:30:00",
-      template_ad_end_time: "2035-09-18 14:30:00"
     }
   ];
 
