@@ -64,8 +64,8 @@ const CreatorCommission: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const [sortField, setSortField] = useState<keyof CreatorCommission>('creatorName');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [sortField, setSortField] = useState<keyof CreatorCommission>('totalOrders');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Load data from JSON file
@@ -133,21 +133,19 @@ const CreatorCommission: React.FC = () => {
       const standardEstimated = parseNumber(record["Thanh toán hoa hồng tiêu chuẩn ước tính"]);
       const standardActual = parseNumber(record["Thanh toán hoa hồng thực tế"]);
       
-      if (standardEstimated > 0 || standardActual > 0) {
-        creator.standardCommission.estimated += standardEstimated;
-        creator.standardCommission.actual += standardActual;
-        creator.standardCommission.total += standardActual || standardEstimated;
-      }
+      // Always add standard commission values (even if 0)
+      creator.standardCommission.estimated += standardEstimated;
+      creator.standardCommission.actual += standardActual;
+      creator.standardCommission.total += standardActual || standardEstimated;
 
       // Process advertising commission
       const advertisingEstimated = parseNumber(record["Thanh toán hoa hồng Quảng cáo cửa hàng ước tính"]);
       const advertisingActual = parseNumber(record["Thanh toán hoa hồng Quảng cáo cửa hàng thực tế"]);
       
-      if (advertisingEstimated > 0 || advertisingActual > 0) {
-        creator.advertisingCommission.estimated += advertisingEstimated;
-        creator.advertisingCommission.actual += advertisingActual;
-        creator.advertisingCommission.total += advertisingActual || advertisingEstimated;
-      }
+      // Always add advertising commission values (even if 0)
+      creator.advertisingCommission.estimated += advertisingEstimated;
+      creator.advertisingCommission.actual += advertisingActual;
+      creator.advertisingCommission.total += advertisingActual || advertisingEstimated;
     });
 
     // Calculate total commission for each creator
@@ -320,17 +318,16 @@ const CreatorCommission: React.FC = () => {
       {/* Commission Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full border-collapse">
             <thead>
               {/* Main Header Row */}
               <tr className="bg-gray-50">
                 <th 
                   rowSpan={2}
-                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 border-r border-gray-200"
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 border border-gray-200 dark:border-gray-700"
                   onClick={() => handleSort('creatorName')}
                 >
                   <div className="flex items-center space-x-1">
-                    <span className="text-blue-500">👤</span>
                     <span>Creator</span>
                     {sortField === 'creatorName' && (
                       <span className="text-blue-500 text-sm">
@@ -341,11 +338,10 @@ const CreatorCommission: React.FC = () => {
                 </th>
                 <th 
                   rowSpan={2}
-                  className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 border-r border-gray-200"
+                  className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 border border-gray-200 dark:border-gray-700"
                   onClick={() => handleSort('totalOrders')}
                 >
                   <div className="flex items-center justify-center space-x-1">
-                    <span className="text-purple-500">📦</span>
                     <span>Số đơn</span>
                     {sortField === 'totalOrders' && (
                       <span className="text-blue-500 text-sm">
@@ -356,11 +352,10 @@ const CreatorCommission: React.FC = () => {
                 </th>
                 <th 
                   rowSpan={2}
-                  className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 border-r border-gray-200"
+                  className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 border border-gray-200 dark:border-gray-700"
                   onClick={() => handleSort('totalRevenue')}
                 >
                   <div className="flex items-center justify-center space-x-1">
-                    <span className="text-green-500">💰</span>
                     <span>Tổng giá trị</span>
                     {sortField === 'totalRevenue' && (
                       <span className="text-blue-500 text-sm">
@@ -371,106 +366,75 @@ const CreatorCommission: React.FC = () => {
                 </th>
                 <th 
                   colSpan={2}
-                  className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-blue-500"
+                  className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider border border-blue-300 dark:border-blue-600 bg-gradient-to-r from-blue-500 to-blue-600"
                 >
                   <div className="flex items-center justify-center space-x-1">
-                    <span>⭐</span>
                     <span>Hoa hồng tiêu chuẩn</span>
                   </div>
                 </th>
                 <th 
                   colSpan={2}
-                  className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-emerald-500"
+                  className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider border border-green-300 dark:border-green-600 bg-gradient-to-r from-green-500 to-green-600"
                 >
                   <div className="flex items-center justify-center space-x-1">
-                    <span>📢</span>
                     <span>Hoa hồng quảng cáo</span>
-                  </div>
-                </th>
-                <th 
-                  rowSpan={2}
-                  className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('totalCommission')}
-                >
-                  <div className="flex items-center justify-center space-x-1">
-                    <span className="text-orange-500">🎯</span>
-                    <span>Tổng hoa hồng</span>
-                    {sortField === 'totalCommission' && (
-                      <span className="text-blue-500 text-sm">
-                        {sortDirection === 'asc' ? '↑' : '↓'}
-                      </span>
-                    )}
                   </div>
                 </th>
               </tr>
               {/* Sub Header Row */}
               <tr className="bg-gray-50">
-                <th className="px-4 py-2 text-center text-xs font-medium text-blue-700 uppercase tracking-wider bg-blue-50 border-r border-blue-200">
+                <th className="px-4 py-2 text-center text-xs font-medium text-blue-600 uppercase tracking-wider bg-blue-50 border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-center space-x-1">
-                    <span className="text-blue-600">📊</span>
                     <span>Ước tính</span>
                   </div>
                 </th>
-                <th className="px-4 py-2 text-center text-xs font-medium text-blue-700 uppercase tracking-wider bg-blue-50">
+                <th className="px-4 py-2 text-center text-xs font-medium text-blue-700 uppercase tracking-wider bg-blue-50 border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-center space-x-1">
-                    <span className="text-blue-600">✅</span>
                     <span>Thực tế</span>
                   </div>
                 </th>
-                <th className="px-4 py-2 text-center text-xs font-medium text-emerald-700 uppercase tracking-wider bg-emerald-50 border-r border-emerald-200">
+                <th className="px-4 py-2 text-center text-xs font-medium text-green-600 uppercase tracking-wider bg-green-50 border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-center space-x-1">
-                    <span className="text-emerald-600">📊</span>
                     <span>Ước tính</span>
                   </div>
                 </th>
-                <th className="px-4 py-2 text-center text-xs font-medium text-emerald-700 uppercase tracking-wider bg-emerald-50">
+                <th className="px-4 py-2 text-center text-xs font-medium text-green-700 uppercase tracking-wider bg-green-50 border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-center space-x-1">
-                    <span className="text-emerald-600">✅</span>
                     <span>Thực tế</span>
                   </div>
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white">
               {currentData.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                     Không có dữ liệu hoa hồng
                   </td>
                 </tr>
               ) : (
                 currentData.map((creator, index) => (
-                  <tr key={creator.creatorName} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                    <td className="px-4 py-3 whitespace-nowrap border-r border-gray-200">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
-                          {creator.creatorName.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{creator.creatorName}</div>
-                        </div>
-                      </div>
+                  <tr key={creator.creatorName} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 whitespace-nowrap border border-gray-200 dark:border-gray-700">
+                      <div className="text-sm font-medium text-gray-900">{creator.creatorName}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-center border-r border-gray-200">
+                    <td className="px-4 py-3 whitespace-nowrap text-center border border-gray-200 dark:border-gray-700">
                       <div className="text-sm font-semibold text-purple-600">{creator.totalOrders}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-center border-r border-gray-200">
+                    <td className="px-4 py-3 whitespace-nowrap text-center border border-gray-200 dark:border-gray-700">
                       <div className="text-sm font-semibold text-green-600">{formatCurrency(creator.totalRevenue)}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-center bg-blue-50 border-r border-blue-200">
+                    <td className="px-4 py-3 whitespace-nowrap text-center border border-gray-200 dark:border-gray-700">
                       <div className="text-sm font-semibold text-blue-600">{formatCurrency(creator.standardCommission.estimated)}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-center bg-blue-50">
+                    <td className="px-4 py-3 whitespace-nowrap text-center border border-gray-200 dark:border-gray-700">
                       <div className="text-sm font-semibold text-blue-700">{formatCurrency(creator.standardCommission.actual)}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-center bg-emerald-50 border-r border-emerald-200">
-                      <div className="text-sm font-semibold text-emerald-600">{formatCurrency(creator.advertisingCommission.estimated)}</div>
+                    <td className="px-4 py-3 whitespace-nowrap text-center border border-gray-200 dark:border-gray-700">
+                      <div className="text-sm font-semibold text-green-600">{formatCurrency(creator.advertisingCommission.estimated)}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-center bg-emerald-50">
-                      <div className="text-sm font-semibold text-emerald-700">{formatCurrency(creator.advertisingCommission.actual)}</div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-center">
-                      <div className="text-sm font-bold text-orange-600">{formatCurrency(creator.totalCommission)}</div>
+                    <td className="px-4 py-3 whitespace-nowrap text-center border border-gray-200 dark:border-gray-700">
+                      <div className="text-sm font-semibold text-green-700">{formatCurrency(creator.advertisingCommission.actual)}</div>
                     </td>
                   </tr>
                 ))
