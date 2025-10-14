@@ -31,6 +31,7 @@ import ProductManagement from "./pages/Store/ProductManagement";
 import OrdersFulfillment from "./pages/Store/OrdersFulfillment";
 import AftersalesAnalytics from "./pages/Store/AftersalesAnalytics";
 import TikTokApiPage from "./pages/Demo/TikTokApiPage";
+import MultiPlatformAds from "./pages/Ads/MultiPlatformAds";
 
 export default function App() {
   return (
@@ -67,6 +68,7 @@ export default function App() {
 
             {/* Ads */}
             <Route path="ads-overview" element={<AdsOverview />} />
+            <Route path="multi-platform-ads" element={<MultiPlatformAds />} />
             <Route path="gmv-max-product" element={<GmvMaxProduct />} />
             <Route path="gmv-max-live" element={<GmvMaxLive />} />
             <Route path="gmv-max-product/campaign-video/:campaignId" element={<CampaignVideoDetail />} />

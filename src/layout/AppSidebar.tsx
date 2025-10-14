@@ -20,6 +20,7 @@ import {
   FolderIcon,
   BoxIcon,
   ShootingStarIcon,
+  ChatIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -32,43 +33,134 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
+  // ========== 1. QUẢNG CÁO (3 features) ==========
   {
     icon: <ShootingStarIcon />,
     name: "Quảng cáo",
     subItems: [
-      { name: "Tổng quan", path: "ads-overview", pro: false, icon: <GridIcon /> },
-      { name: "GMV Max sản phẩm", path: "gmv-max-product", pro: false, icon: <BoxCubeIcon /> },
-      { name: "GMV Max Live", path: "gmv-max-live", pro: false, icon: <VideoIcon /> }
+      { name: "Tổng quan quảng cáo", path: "ads-overview", pro: false, icon: <GridIcon /> },
+      { name: "TikTok Ads", path: "tiktok-ads", pro: false, icon: <VideoIcon /> },
+      { name: "Shopee Ads", path: "shopee-ads", pro: false, icon: <BoxIcon /> }
     ],
   },
+
+  // ========== 2. QUY TRÌNH & WORKFLOW (8 features) ==========
   {
-    icon: <UserIcon />,
-    name: "Creator",
+    icon: <GridIcon />,
+    name: "Quy trình & Workflow",
     subItems: [
-      { name: "Thống kê nguồn doanh thu", path: "creator-analytics", pro: false, icon: <PieChartIcon /> },
-      { name: "Thống kê hoa hồng ADS và Tự Nhiên", path: "creator-commission", pro: false, icon: <DollarLineIcon /> }
+      { name: "Quản lý quy trình", path: "workflow-management", pro: false, icon: <GridIcon /> },
+      { name: "Tự động hóa quy trình", path: "process-automation", pro: false, icon: <BoxIcon /> },
+      { name: "Quy trình phê duyệt", path: "approval-workflows", pro: false, icon: <TableIcon /> },
+      { name: "Phân công nhiệm vụ", path: "task-assignment", pro: false, icon: <UserIcon /> },
+      { name: "Tạo biểu mẫu", path: "form-builder", pro: false, icon: <TableIcon /> },
+      { name: "Mẫu quy trình", path: "process-templates", pro: false, icon: <GridIcon /> },
+      { name: "Trường tùy chỉnh", path: "custom-fields", pro: false, icon: <TableIcon /> },
+      { name: "Giám sát quy trình", path: "process-monitoring", pro: false, icon: <PieChartIcon /> }
     ],
   },
+
+  // ========== 3. GIAO TIẾP & CỘNG TÁC (8 features) ==========
   {
-    icon: <UserCircleIcon />,
-    name: "Quản trị hiệu suất",
+    icon: <ChatIcon />,
+    name: "Giao tiếp & Cộng tác",
     subItems: [
-      { name: "Tiến độ sản xuất video", path: "video-management", pro: false, icon: <VideoIcon /> },
-      { name: "Quản lý hiệu suất Booking", path: "booking-management", pro: false, icon: <CalenderIcon /> },
-      { name: "Danh sách nhân sự", path: "staff-list", pro: false, icon: <UserIcon /> }
+      { name: "Chat nhóm", path: "team-chat", pro: false, icon: <ChatIcon /> },
+      { name: "Họp video", path: "video-conferencing", pro: false, icon: <VideoIcon /> },
+      { name: "Quản lý cuộc họp", path: "meeting-management", pro: false, icon: <CalenderIcon /> },
+      { name: "Ghi chú chung", path: "shared-notes", pro: false, icon: <TableIcon /> },
+      { name: "Chia sẻ tệp", path: "file-sharing", pro: false, icon: <BoxIcon /> },
+      { name: "Thông báo đẩy", path: "push-notifications", pro: false, icon: <ChatIcon /> },
+      { name: "Lên lịch họp", path: "meeting-scheduler", pro: false, icon: <CalenderIcon /> },
+      { name: "Cộng tác nhóm", path: "team-collaboration", pro: false, icon: <UserIcon /> }
     ],
   },
+
+  // ========== 4. SẢN PHẨM THÔNG MINH (12 features) ==========
   {
     icon: <BoxCubeIcon />,
-    name: "Cửa hàng",
+    name: "Sản phẩm thông minh",
     subItems: [
-      { name: "Quản lí Sản phẩm", path: "product-management", pro: false, icon: <BoxCubeIcon /> },
-      { name: "Đơn hàng & Fulfillment", path: "orders-fulfillment", pro: false, icon: <TableIcon /> },
-      { name: "Logistics", path: "logistics-tracking", pro: false, icon: <BoxIcon /> },
-      { name: "Phân tích Shop", path: "shop-analytics", pro: false, icon: <PieChartIcon /> },
-      { name: "Phân tích Hủy/Trả/Hoàn tiền", path: "aftersales-analytics", pro: false, icon: <DollarLineIcon /> }
+      { name: "Quản lý sản phẩm", path: "product-management", pro: false, icon: <BoxCubeIcon /> },
+      { name: "Đồng bộ tồn kho AI", path: "inventory-sync", pro: true, icon: <BoxIcon /> },
+      { name: "Tối ưu giá AI", path: "price-optimization", pro: true, icon: <DollarLineIcon /> },
+      { name: "Phân tích SKU", path: "sku-analytics", pro: false, icon: <PieChartIcon /> },
+      { name: "Sản phẩm hot AI", path: "hot-products", pro: true, icon: <ShootingStarIcon /> },
+      { name: "Dự báo nhu cầu AI", path: "demand-forecast", pro: true, icon: <GridIcon /> },
+      { name: "Cảnh báo tồn kho", path: "stock-alerts", pro: false, icon: <ShootingStarIcon /> },
+      { name: "Phân tích lợi nhuận", path: "margin-analysis", pro: false, icon: <DollarLineIcon /> },
+      { name: "Bán chéo AI", path: "cross-selling-ai", pro: true, icon: <BoxCubeIcon /> },
+      { name: "Bán thêm AI", path: "upselling-ai", pro: true, icon: <BoxCubeIcon /> },
+      { name: "Tự động đặt hàng AI", path: "auto-reorder", pro: true, icon: <BoxIcon /> },
+      { name: "Hệ thống gợi ý AI", path: "recommendation-engine", pro: true, icon: <BoxCubeIcon /> }
     ],
   },
+
+  // ========== 5. ĐƠN HÀNG THÔNG MINH (10 features) ==========
+  {
+    icon: <TableIcon />,
+    name: "Đơn hàng thông minh",
+    subItems: [
+      { name: "Quản lý đơn hàng", path: "order-management", pro: false, icon: <TableIcon /> },
+      { name: "Fulfillment tự động AI", path: "auto-fulfillment", pro: true, icon: <BoxIcon /> },
+      { name: "Tối ưu vận chuyển", path: "shipping-optimization", pro: false, icon: <BoxIcon /> },
+      { name: "Theo dõi đơn hàng", path: "order-tracking", pro: false, icon: <GridIcon /> },
+      { name: "Quản lý COD", path: "cod-management", pro: false, icon: <DollarLineIcon /> },
+      { name: "Đổi trả hàng", path: "returns-exchange", pro: false, icon: <TableIcon /> },
+      { name: "Phân tích đơn hàng", path: "order-analytics", pro: false, icon: <PieChartIcon /> },
+      { name: "Chatbot hỗ trợ AI", path: "ai-chatbot", pro: true, icon: <ChatIcon /> },
+      { name: "Xử lý thanh toán", path: "payment-processing", pro: false, icon: <DollarLineIcon /> },
+      { name: "Hiệu suất đơn hàng", path: "order-performance", pro: false, icon: <PieChartIcon /> }
+    ],
+  },
+
+  // ========== 6. THÔNG TIN KHÁCH HÀNG (8 features) ==========
+  {
+    icon: <UserCircleIcon />,
+    name: "Thông tin khách hàng",
+    subItems: [
+      { name: "Cơ sở dữ liệu khách hàng", path: "customer-database", pro: false, icon: <TableIcon /> },
+      { name: "Phân khúc khách hàng AI", path: "customer-segmentation", pro: true, icon: <GridIcon /> },
+      { name: "Giá trị trọn đời", path: "customer-ltv", pro: false, icon: <DollarLineIcon /> },
+      { name: "Chương trình khách hàng thân thiết", path: "loyalty-program", pro: false, icon: <ShootingStarIcon /> },
+      { name: "Phân tích khách hàng AI", path: "customer-analytics", pro: true, icon: <PieChartIcon /> },
+      { name: "Chat trực tiếp", path: "live-chat", pro: false, icon: <ChatIcon /> },
+      { name: "Hành trình khách hàng", path: "customer-journey", pro: false, icon: <GridIcon /> },
+      { name: "Phân tích cảm xúc AI", path: "sentiment-analysis", pro: true, icon: <PieChartIcon /> }
+    ],
+  },
+
+  // ========== 7. TÀI CHÍNH & BÁO CÁO (8 features) ==========
+  {
+    icon: <DollarLineIcon />,
+    name: "Tài chính & Báo cáo",
+    subItems: [
+      { name: "Phân tích doanh thu", path: "revenue-analytics", pro: false, icon: <PieChartIcon /> },
+      { name: "Lãi lỗ", path: "profit-loss", pro: false, icon: <TableIcon /> },
+      { name: "Dòng tiền", path: "cash-flow", pro: false, icon: <DollarLineIcon /> },
+      { name: "Dự báo tài chính AI", path: "financial-forecast", pro: true, icon: <GridIcon /> },
+      { name: "Phân tích chi phí", path: "cost-analysis", pro: false, icon: <DollarLineIcon /> },
+      { name: "Thông tin kinh doanh", path: "business-intelligence", pro: false, icon: <PieChartIcon /> },
+      { name: "Theo dõi ROI", path: "roi-tracking", pro: false, icon: <DollarLineIcon /> },
+      { name: "Báo cáo tài chính", path: "financial-reports", pro: false, icon: <TableIcon /> }
+    ],
+  },
+
+  // ========== 8. NHÓM & VẬN HÀNH (8 features) ==========
+  {
+    icon: <UserIcon />,
+    name: "Nhóm & Vận hành",
+    subItems: [
+      { name: "Quản lý nhóm", path: "team-management", pro: false, icon: <UserIcon /> },
+      { name: "Dashboard KPI", path: "kpi-dashboard", pro: false, icon: <PieChartIcon /> },
+      { name: "Quản lý nhiệm vụ", path: "task-management", pro: false, icon: <TableIcon /> },
+      { name: "Đánh giá hiệu suất", path: "performance-review", pro: false, icon: <PieChartIcon /> },
+      { name: "Tự động hóa workflow", path: "workflow-automation", pro: false, icon: <GridIcon /> },
+      { name: "Trung tâm thông báo", path: "notification-center", pro: false, icon: <ChatIcon /> },
+      { name: "Cài đặt hệ thống", path: "system-settings", pro: false, icon: <GridIcon /> },
+      { name: "Bảo mật", path: "security", pro: false, icon: <ShootingStarIcon /> }
+    ],
+  }
 ];
 
 const othersItems: NavItem[] = [];
@@ -158,11 +250,7 @@ const AppSidebar: React.FC = () => {
                 openSubmenus.has(`${menuType}-${index}`)
                   ? "menu-item-active"
                   : "menu-item-inactive"
-              } cursor-pointer ${
-                !isExpanded && !isHovered
-                  ? "lg:justify-center"
-                  : "lg:justify-start"
-              }`}
+              } cursor-pointer lg:justify-start`}
             >
               <span
                 className={`menu-item-icon-size  ${
@@ -192,7 +280,7 @@ const AppSidebar: React.FC = () => {
                 to={nav.path}
                 className={`menu-item group ${
                   isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
-                }`}
+                } lg:justify-start`}
               >
                 <span
                   className={`menu-item-icon-size ${
