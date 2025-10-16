@@ -1,10 +1,28 @@
 import React, { useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import Chart from "react-apexcharts";
+import { Modal } from "../../components/ui/modal";
+import { useModal } from "../../hooks/useModal";
+import Button from "../../components/ui/button/Button";
+import Input from "../../components/form/input/InputField";
+import Label from "../../components/form/Label";
 
 const BookingManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const { isOpen, openModal, closeModal } = useModal();
+  
+  // Form state for new booking
+  const [newBooking, setNewBooking] = useState({
+    customerName: "",
+    service: "",
+    date: "",
+    time: "",
+    duration: "",
+    amount: "",
+    phone: "",
+    status: "pending"
+  });
 
   // Sample data for booking management
   const bookingData = [
@@ -97,6 +115,102 @@ const BookingManagement: React.FC = () => {
       style: 'currency',
       currency: 'VND'
     }).format(amount);
+  };
+
+  // Handle form input changes
+  const handleInputChange = (field: string, value: string) => {
+    setNewBooking(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = () => {
+    // Validate required fields
+    if (!newBooking.customerName.trim()) {
+      alert('Vui lòng nhập tên khách hàng');
+      return;
+    }
+    if (!newBooking.phone.trim()) {
+      alert('Vui lòng nhập số điện thoại');
+      return;
+    }
+    if (!newBooking.service) {
+      alert('Vui lòng chọn dịch vụ');
+      return;
+    }
+    if (!newBooking.date) {
+      alert('Vui lòng chọn ngày');
+      return;
+    }
+    if (!newBooking.time) {
+      alert('Vui lòng chọn giờ');
+      return;
+    }
+    if (!newBooking.duration.trim()) {
+      alert('Vui lòng nhập thời lượng');
+      return;
+    }
+    if (!newBooking.amount || parseInt(newBooking.amount) <= 0) {
+      alert('Vui lòng nhập số tiền hợp lệ');
+      return;
+    }
+
+    // Validate phone number format (basic validation)
+    const phoneRegex = /^[0-9]{10,11}$/;
+    if (!phoneRegex.test(newBooking.phone.replace(/\s/g, ''))) {
+      alert('Số điện thoại không hợp lệ (10-11 chữ số)');
+      return;
+    }
+
+    // Generate new booking ID
+    const newId = `BK${String(bookingData.length + 1).padStart(3, '0')}`;
+    
+    // Create new booking object
+    const booking = {
+      id: newId,
+      customerName: newBooking.customerName.trim(),
+      service: newBooking.service,
+      date: newBooking.date,
+      time: newBooking.time,
+      duration: newBooking.duration.trim(),
+      status: newBooking.status,
+      amount: parseInt(newBooking.amount),
+      phone: newBooking.phone.trim()
+    };
+
+    // Here you would typically add the booking to your data source
+    console.log('New booking:', booking);
+    alert('Thêm booking thành công!');
+    
+    // Reset form and close modal
+    setNewBooking({
+      customerName: "",
+      service: "",
+      date: "",
+      time: "",
+      duration: "",
+      amount: "",
+      phone: "",
+      status: "pending"
+    });
+    closeModal();
+  };
+
+  // Reset form when modal closes
+  const handleCloseModal = () => {
+    setNewBooking({
+      customerName: "",
+      service: "",
+      date: "",
+      time: "",
+      duration: "",
+      amount: "",
+      phone: "",
+      status: "pending"
+    });
+    closeModal();
   };
 
   return (
@@ -286,6 +400,13 @@ const BookingManagement: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Danh Sách Booking ({filteredBookings.length} mục)
               </h3>
+              <Button 
+                onClick={openModal}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+              >
+                <span className="text-lg">+</span>
+                Thêm mới
+              </Button>
             </div>
 
             {/* Filters */}
@@ -390,6 +511,122 @@ const BookingManagement: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Add New Booking Modal */}
+      <Modal isOpen={isOpen} onClose={handleCloseModal} className="max-w-[800px] m-4">
+        <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-8">
+          <div className="px-2 pr-14">
+            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+              Thêm Booking Mới
+            </h4>
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
+              Nhập thông tin để tạo booking mới cho khách hàng.
+            </p>
+          </div>
+          
+          <form className="flex flex-col">
+            <div className="px-2 overflow-y-auto custom-scrollbar">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Tên khách hàng *</Label>
+                  <Input 
+                    type="text" 
+                    value={newBooking.customerName}
+                    onChange={(e) => handleInputChange('customerName', e.target.value)}
+                    placeholder="Nhập tên khách hàng"
+                  />
+                </div>
+
+                <div>
+                  <Label>Số điện thoại *</Label>
+                  <Input 
+                    type="tel" 
+                    value={newBooking.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="Nhập số điện thoại"
+                  />
+                </div>
+
+                <div>
+                  <Label>Dịch vụ *</Label>
+                  <select
+                    value={newBooking.service}
+                    onChange={(e) => handleInputChange('service', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Chọn dịch vụ</option>
+                    <option value="Quay video quảng cáo">Quay video quảng cáo</option>
+                    <option value="Chụp ảnh sản phẩm">Chụp ảnh sản phẩm</option>
+                    <option value="Livestream bán hàng">Livestream bán hàng</option>
+                    <option value="Quay video hướng dẫn">Quay video hướng dẫn</option>
+                  </select>
+                </div>
+
+                <div>
+                  <Label>Số tiền (VNĐ) *</Label>
+                  <Input 
+                    type="number" 
+                    value={newBooking.amount}
+                    onChange={(e) => handleInputChange('amount', e.target.value)}
+                    placeholder="Nhập số tiền"
+                  />
+                </div>
+
+                <div>
+                  <Label>Ngày *</Label>
+                  <Input 
+                    type="date" 
+                    value={newBooking.date}
+                    onChange={(e) => handleInputChange('date', e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <Label>Giờ *</Label>
+                  <Input 
+                    type="time" 
+                    value={newBooking.time}
+                    onChange={(e) => handleInputChange('time', e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <Label>Thời lượng *</Label>
+                  <Input 
+                    type="text" 
+                    value={newBooking.duration}
+                    onChange={(e) => handleInputChange('duration', e.target.value)}
+                    placeholder="VD: 2 giờ, 1.5 giờ"
+                  />
+                </div>
+
+                <div>
+                  <Label>Trạng thái</Label>
+                  <select
+                    value={newBooking.status}
+                    onChange={(e) => handleInputChange('status', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="pending">Chờ xác nhận</option>
+                    <option value="confirmed">Đã xác nhận</option>
+                    <option value="completed">Hoàn thành</option>
+                    <option value="cancelled">Đã hủy</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+              <Button size="sm" variant="outline" onClick={handleCloseModal}>
+                Hủy
+              </Button>
+              <Button size="sm" onClick={handleSubmit}>
+                Thêm Booking
+              </Button>
+            </div>
+          </form>
+        </div>
+      </Modal>
     </>
   );
 };

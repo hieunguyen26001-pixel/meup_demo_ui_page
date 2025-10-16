@@ -1,8 +1,25 @@
 import React, { useState } from 'react';
 import { PlusIcon, PencilIcon, TrashBinIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from '../../icons';
+import { Modal } from '../ui/modal';
+import { useModal } from '../../hooks/useModal';
+import Button from '../ui/button/Button';
+import Input from '../form/input/InputField';
+import Label from '../form/Label';
 
 const KOCVideoLinksTable: React.FC = () => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const { isOpen, openModal, closeModal } = useModal();
+  
+  // Form state for new KOC video link
+  const [newVideoLink, setNewVideoLink] = useState({
+    channelId: "",
+    videoLink: "",
+    adsCode: "",
+    responsiblePerson: "",
+    shopName: "",
+    creationDate: ""
+  });
+
   const data = [
     {
       id: 1,
@@ -24,6 +41,89 @@ const KOCVideoLinksTable: React.FC = () => {
     }
   ];
 
+  // Handle form input changes
+  const handleInputChange = (field: string, value: string) => {
+    setNewVideoLink(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = () => {
+    // Validate required fields
+    if (!newVideoLink.channelId.trim()) {
+      alert('Vui lòng nhập ID kênh');
+      return;
+    }
+    if (!newVideoLink.videoLink.trim()) {
+      alert('Vui lòng nhập link video');
+      return;
+    }
+    if (!newVideoLink.adsCode.trim()) {
+      alert('Vui lòng nhập mã code ads');
+      return;
+    }
+    if (!newVideoLink.responsiblePerson.trim()) {
+      alert('Vui lòng nhập tên người phụ trách');
+      return;
+    }
+    if (!newVideoLink.shopName.trim()) {
+      alert('Vui lòng nhập tên shop');
+      return;
+    }
+    if (!newVideoLink.creationDate) {
+      alert('Vui lòng chọn ngày tạo');
+      return;
+    }
+
+    // Validate URL format
+    const urlRegex = /^https?:\/\/.+/;
+    if (!urlRegex.test(newVideoLink.videoLink.trim())) {
+      alert('Link video không hợp lệ (phải bắt đầu bằng http:// hoặc https://)');
+      return;
+    }
+
+    // Create new video link object
+    const videoLink = {
+      id: data.length + 1,
+      channelId: newVideoLink.channelId.trim(),
+      videoLink: newVideoLink.videoLink.trim(),
+      adsCode: newVideoLink.adsCode.trim(),
+      responsiblePerson: newVideoLink.responsiblePerson.trim(),
+      shopName: newVideoLink.shopName.trim(),
+      creationDate: newVideoLink.creationDate
+    };
+
+    // Here you would typically add the video link to your data source
+    console.log('New KOC video link:', videoLink);
+    alert('Thêm KOC video link thành công!');
+    
+    // Reset form and close modal
+    setNewVideoLink({
+      channelId: "",
+      videoLink: "",
+      adsCode: "",
+      responsiblePerson: "",
+      shopName: "",
+      creationDate: ""
+    });
+    closeModal();
+  };
+
+  // Reset form when modal closes
+  const handleCloseModal = () => {
+    setNewVideoLink({
+      channelId: "",
+      videoLink: "",
+      adsCode: "",
+      responsiblePerson: "",
+      shopName: "",
+      creationDate: ""
+    });
+    closeModal();
+  };
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -31,7 +131,10 @@ const KOCVideoLinksTable: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             Danh sách KOC Video Links
           </h3>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <button 
+            onClick={openModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
             <PlusIcon className="w-4 h-4" />
             Thêm mới
           </button>
@@ -147,6 +250,94 @@ const KOCVideoLinksTable: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Add New KOC Video Link Modal */}
+      <Modal isOpen={isOpen} onClose={handleCloseModal} className="max-w-[800px] m-4">
+        <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-8">
+          <div className="px-2 pr-14">
+            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+              Thêm KOC Video Link Mới
+            </h4>
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
+              Nhập thông tin để thêm KOC video link mới.
+            </p>
+          </div>
+          
+          <form className="flex flex-col">
+            <div className="px-2 overflow-y-auto custom-scrollbar">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>ID Kênh *</Label>
+                  <Input 
+                    type="text" 
+                    value={newVideoLink.channelId}
+                    onChange={(e) => handleInputChange('channelId', e.target.value)}
+                    placeholder="Nhập ID kênh"
+                  />
+                </div>
+
+                <div>
+                  <Label>Ngày tạo *</Label>
+                  <Input 
+                    type="date" 
+                    value={newVideoLink.creationDate}
+                    onChange={(e) => handleInputChange('creationDate', e.target.value)}
+                  />
+                </div>
+
+                <div className="lg:col-span-2">
+                  <Label>Link Video *</Label>
+                  <Input 
+                    type="url" 
+                    value={newVideoLink.videoLink}
+                    onChange={(e) => handleInputChange('videoLink', e.target.value)}
+                    placeholder="https://www.tiktok.com/@username/video/..."
+                  />
+                </div>
+
+                <div>
+                  <Label>Mã Code Ads *</Label>
+                  <Input 
+                    type="text" 
+                    value={newVideoLink.adsCode}
+                    onChange={(e) => handleInputChange('adsCode', e.target.value)}
+                    placeholder="Nhập mã code ads"
+                  />
+                </div>
+
+                <div>
+                  <Label>Người phụ trách *</Label>
+                  <Input 
+                    type="text" 
+                    value={newVideoLink.responsiblePerson}
+                    onChange={(e) => handleInputChange('responsiblePerson', e.target.value)}
+                    placeholder="Nhập tên người phụ trách"
+                  />
+                </div>
+
+                <div>
+                  <Label>Tên Shop *</Label>
+                  <Input 
+                    type="text" 
+                    value={newVideoLink.shopName}
+                    onChange={(e) => handleInputChange('shopName', e.target.value)}
+                    placeholder="Nhập tên shop"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+              <Button size="sm" variant="outline" onClick={handleCloseModal}>
+                Hủy
+              </Button>
+              <Button size="sm" onClick={handleSubmit}>
+                Thêm Video Link
+              </Button>
+            </div>
+          </form>
+        </div>
+      </Modal>
     </div>
   );
 };
