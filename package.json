@@ -7,9 +7,15 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "deploy": "vite build && gh-pages --dotfiles -d dist",
+        "build:analyze": "vite build --mode analyze",
+        "build:prod": "npm run optimize:images && vite build",
+        "deploy": "npm run build:prod && gh-pages --dotfiles -d dist",
         "lint": "eslint .",
-        "preview": "vite preview"
+        "lint:fix": "eslint . --fix",
+        "preview": "vite preview",
+        "optimize:images": "node scripts/optimize-images.js",
+        "clean": "rm -rf dist node_modules/.vite",
+        "prebuild": "npm run clean"
     },
     "dependencies": {
         "@fullcalendar/core": "^6.1.15",
@@ -39,7 +45,6 @@
         "simplebar-react": "^3.3.0",
         "swiper": "^11.2.3",
         "tailwind-merge": "^3.0.1",
-        "uninstall": "^0.0.0",
         "xlsx": "^0.18.5"
     },
     "devDependencies": {
@@ -59,6 +64,7 @@
         "typescript": "~5.7.2",
         "typescript-eslint": "^8.22.0",
         "vite": "^6.1.0",
-        "vite-plugin-svgr": "^4.3.0"
+        "vite-plugin-svgr": "^4.3.0",
+        "rollup-plugin-visualizer": "^5.12.0"
     }
 }
